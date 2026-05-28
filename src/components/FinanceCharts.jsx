@@ -109,9 +109,9 @@ export default function FinanceCharts() {
       {/* 1. Finance Guru Storytelling */}
       <section style={{ marginBottom: '40px', marginTop: '20px' }}>
         <p style={{ color: '#209cee', marginBottom: '10px' }}>Financial Advisor Insight</p>
-        <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-start', flexWrap: 'nowrap' }}>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'nowrap' }}>
           <div style={{ textAlign: 'center', flexShrink: 0 }}>
-            <img src="/advisor.png" alt="Advisor" style={{ width: '80px', imageRendering: 'pixelated' }} />
+            <img src="/advisor.png" alt="Advisor" style={{ width: '130px', imageRendering: 'pixelated' }} />
           </div>
           <div className="nes-balloon from-left is-dark" style={{ flex: 1, padding: '1rem', minWidth: 0 }}>
             <p style={{ fontSize: '0.8rem', lineHeight: '1.6' }}>{analytics.story}</p>

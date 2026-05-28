@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import FinanceCharts from '../components/FinanceCharts.jsx';
+import AuthGate from '../components/AuthGate.jsx';
 ---
 
 <Layout title="Omar Morales - Financial Analytics">
@@ -13,6 +13,6 @@ import FinanceCharts from '../components/FinanceCharts.jsx';
       <p style="color: #92cc41;">Live JARVIS Sync</p>
     </div>
 
-    <FinanceCharts client:load />
+    <AuthGate client:only="react" />
   </main>
 </Layout>
