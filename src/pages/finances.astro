@@ -1,0 +1,18 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FinanceCharts from '../components/FinanceCharts.jsx';
+---
+
+<Layout title="Omar Morales - Financial Analytics">
+  <main>
+    <a href="/" class="nes-btn" style="margin-bottom: 30px;">&lt; Back</a>
+    
+    <div style="text-align: center; margin-bottom: 40px;">
+      <i class="nes-icon coin is-large"></i>
+      <h2 style="margin-top: 20px;">Financial Analytics</h2>
+      <p style="color: #92cc41;">Live JARVIS Sync</p>
+    </div>
+
+    <FinanceCharts client:load />
+  </main>
+</Layout>

@@ -50,10 +50,10 @@ export default function JarvisDashboard() {
       {data && !loading && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
           
-          <div className="nes-container is-dark is-rounded" style={{ flex: 1, minWidth: '200px' }}>
-             <p style={{ color: '#fbed64', fontSize: '0.8rem', marginBottom: '15px' }}>MXN Spent</p>
+          <a href="/finances" className="nes-container is-dark is-rounded clickable-card" style={{ flex: 1, minWidth: '200px', display: 'block', textDecoration: 'none', color: 'inherit', transition: 'transform 0.1s' }}>
+             <p style={{ color: '#fbed64', fontSize: '0.8rem', marginBottom: '15px' }}>MXN Spent <span style={{ fontSize: '0.5rem', color: '#fff' }}>(Details)</span></p>
              <p style={{ fontSize: '1.2rem' }}>{formattedExpenses} <i className="nes-icon coin is-small"></i></p>
-          </div>
+          </a>
 
           <div className="nes-container is-dark is-rounded" style={{ flex: 1, minWidth: '200px' }}>
              <p style={{ color: '#209cee', fontSize: '0.8rem', marginBottom: '15px' }}>Workouts</p>
