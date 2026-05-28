@@ -22,13 +22,16 @@ export default function JarvisDashboard() {
       });
   }, []);
 
-  // Safe extractors based on common JSON structures
-  const expenses = data?.expenses_total || data?.total_expenses || data?.expenses || '???';
-  const workouts = data?.workouts_count || data?.total_workouts || data?.workouts || '???';
+  // Parse the actual schema from jarvis-life-tracker
+  const expensesMXN = data?.last_7_days?.total_spending?.MXN || 0;
+  const workouts = data?.last_7_days?.workout_count || 0;
+
+  // Format the MXN expenses cleanly
+  const formattedExpenses = `$${expensesMXN.toLocaleString()}`;
 
   return (
     <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
-      <p className="title">Player Stats (Live API)</p>
+      <p className="title">Player Stats (7-Day Log)</p>
       
       {loading && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
@@ -48,13 +51,13 @@ export default function JarvisDashboard() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
           
           <div className="nes-container is-dark is-rounded" style={{ flex: 1, minWidth: '200px' }}>
-             <p style={{ color: '#fbed64', fontSize: '0.8rem', marginBottom: '15px' }}>Expenses</p>
-             <p style={{ fontSize: '1.2rem' }}>{String(expenses)} <i className="nes-icon coin is-small"></i></p>
+             <p style={{ color: '#fbed64', fontSize: '0.8rem', marginBottom: '15px' }}>MXN Spent</p>
+             <p style={{ fontSize: '1.2rem' }}>{formattedExpenses} <i className="nes-icon coin is-small"></i></p>
           </div>
 
           <div className="nes-container is-dark is-rounded" style={{ flex: 1, minWidth: '200px' }}>
              <p style={{ color: '#209cee', fontSize: '0.8rem', marginBottom: '15px' }}>Workouts</p>
-             <p style={{ fontSize: '1.2rem' }}>{String(workouts)} <i className="nes-icon trophy is-small"></i></p>
+             <p style={{ fontSize: '1.2rem' }}>{workouts} <i className="nes-icon trophy is-small"></i></p>
           </div>
 
           <div className="nes-container is-dark is-rounded" style={{ flex: 1, minWidth: '200px' }}>

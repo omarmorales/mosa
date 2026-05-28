@@ -36,12 +36,23 @@ import 'nes.css/css/nes.min.css';
         border-bottom: 4px solid #fff;
         padding-bottom: 20px;
       }
-      h1 { color: #209cee; font-size: 2rem; margin-bottom: 10px; }
+      h1 { color: #209cee; font-size: 2rem; margin-bottom: 10px; word-wrap: break-word; }
       h2, h3 { color: #fbed64; }
       .nes-btn { font-family: 'Press Start 2P', cursive; }
       
       /* Progress bar tweaks for dark theme */
       .nes-progress { height: 30px; }
+
+      /* Mobile First / Responsive Adjustments */
+      @media (max-width: 768px) {
+        body { font-size: 12px; }
+        h1 { font-size: 1.2rem; }
+        .container { padding: 10px; }
+        .nes-container { padding: 1rem; }
+        /* Make sure tables or flex containers don't break the viewport */
+        .nes-table-responsive { margin: 0 -1rem; padding: 0 1rem; }
+        .title { font-size: 14px; }
+      }
     </style>
   </head>
   <body>
