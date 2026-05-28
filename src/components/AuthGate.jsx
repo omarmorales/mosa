@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import FinanceCharts from './FinanceCharts.jsx';
+
+// Code-split FinanceCharts so the browser NEVER downloads its JS chunk (or API URLs)
+// until the user is successfully authenticated!
+const FinanceCharts = React.lazy(() => import('./FinanceCharts.jsx'));
+
+// Helper function to hash string with SHA-256 using native Web Crypto API
+async function hashPin(pinString) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pinString);
+  const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 export default function AuthGate() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -7,19 +19,21 @@ export default function AuthGate() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // Check if already authenticated in this session
     if (sessionStorage.getItem('finance_auth') === 'true') {
       setIsAuthenticated(true);
     }
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // In Astro, env variables with PUBLIC_ are available via import.meta.env
-    // We use a fallback '1234' just in case the env isn't loaded correctly
-    const secretPin = import.meta.env.PUBLIC_FINANCE_PIN || '1234';
     
-    if (pin === secretPin) {
+    // Default fallback SHA-256 hash is for '1234':
+    // "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"
+    const targetHash = import.meta.env.PUBLIC_FINANCE_HASH || "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
+    
+    const enteredHash = await hashPin(pin);
+    
+    if (enteredHash === targetHash) {
       sessionStorage.setItem('finance_auth', 'true');
       setIsAuthenticated(true);
     } else {
@@ -29,7 +43,16 @@ export default function AuthGate() {
   };
 
   if (isAuthenticated) {
-    return <FinanceCharts />;
+    return (
+      <React.Suspense fallback={
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <p>Decrypting Data Modules...</p>
+          <progress className="nes-progress is-primary" value="50" max="100"></progress>
+        </div>
+      }>
+        <FinanceCharts />
+      </React.Suspense>
+    );
   }
 
   return (
@@ -58,3 +81,4 @@ export default function AuthGate() {
     </div>
   );
 }
+
