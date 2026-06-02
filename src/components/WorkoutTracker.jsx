@@ -1,6 +1,136 @@
 import React, { useState, useEffect } from 'react';
 import { analyzeWorkouts } from '../lib/analytics.js';
 
+// --- GITHUB STYLE WORKOUT HEATMAP COMPONENT ---
+function WorkoutHeatmap({ workouts }) {
+  const minutesMap = {};
+  workouts.forEach(w => {
+    if (w.date) {
+      const dateStr = w.date.split(' ')[0]; // Extract YYYY-MM-DD
+      minutesMap[dateStr] = (minutesMap[dateStr] || 0) + (w.duration_minutes || 0);
+    }
+  });
+
+  const now = new Date();
+  const currentDayOfWeek = now.getDay();
+  
+  // Generate 53 weeks ending on the current week's Saturday (371 days total)
+  const days = [];
+  const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (6 - currentDayOfWeek));
+  const startDate = new Date(endDate.getTime());
+  startDate.setDate(endDate.getDate() - 370);
+  
+  for (let i = 0; i < 371; i++) {
+    const d = new Date(startDate.getTime());
+    d.setDate(startDate.getDate() + i);
+    days.push(d);
+  }
+
+  const columns = [];
+  for (let i = 0; i < days.length; i += 7) {
+    columns.push(days.slice(i, i + 7));
+  }
+
+  const formatDate = (date) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const getColor = (minutes) => {
+    if (minutes === 0) return '#1a1c1e';
+    if (minutes < 30) return '#224b1d';
+    if (minutes < 60) return '#3d7930';
+    if (minutes < 90) return '#92cc41';
+    return '#e7ff5c';
+  };
+
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthLabels = [];
+  let lastMonth = -1;
+  columns.forEach((week, colIdx) => {
+    const firstDayOfWeek = week[0];
+    const month = firstDayOfWeek.getMonth();
+    if (month !== lastMonth) {
+      monthLabels.push({ colIdx, label: monthNames[month] });
+      lastMonth = month;
+    }
+  });
+
+  return (
+    <div style={{ padding: '10px 0' }}>
+      <div style={{ overflowX: 'auto', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+        
+        {/* Month Labels */}
+        <div style={{ display: 'flex', gap: '3px', height: '15px', fontSize: '0.5rem', color: '#888', minWidth: '700px', marginLeft: '28px' }}>
+          {columns.map((_, colIdx) => {
+            const labelObj = monthLabels.find(l => l.colIdx === colIdx);
+            return (
+              <div key={colIdx} style={{ width: '10px', flexShrink: 0, textAlign: 'left' }}>
+                {labelObj ? labelObj.label : ''}
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ display: 'flex', gap: '3px', minWidth: '700px' }}>
+          {/* Days Labels */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', justifyContent: 'space-between', fontSize: '0.45rem', color: '#888', marginRight: '8px', width: '20px', height: '88px', paddingTop: '2px', paddingBottom: '2px' }}>
+            <span>Sun</span>
+            <span>Wed</span>
+            <span>Sat</span>
+          </div>
+
+          {/* Grid Cells */}
+          <div style={{ display: 'flex', gap: '3px' }}>
+            {columns.map((column, colIdx) => (
+              <div key={colIdx} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                {column.map(day => {
+                  const formatted = formatDate(day);
+                  const minutes = minutesMap[formatted] || 0;
+                  const isFuture = day > now;
+                  const cellColor = isFuture ? '#121314' : getColor(minutes);
+                  const tooltip = isFuture 
+                    ? `Future Quest` 
+                    : `${formatted}: ${minutes} active minutes`;
+
+                  return (
+                    <div
+                      key={formatted}
+                      title={tooltip}
+                      style={{
+                        width: '10px',
+                        height: '10px',
+                        backgroundColor: cellColor,
+                        borderRadius: '1px',
+                        border: '1px solid #212529',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '5px', fontSize: '0.5rem', color: '#888', marginTop: '15px' }}>
+        <span>Less</span>
+        <div style={{ width: '10px', height: '10px', backgroundColor: '#1a1c1e', borderRadius: '1px' }}></div>
+        <div style={{ width: '10px', height: '10px', backgroundColor: '#224b1d', borderRadius: '1px' }}></div>
+        <div style={{ width: '10px', height: '10px', backgroundColor: '#3d7930', borderRadius: '1px' }}></div>
+        <div style={{ width: '10px', height: '10px', backgroundColor: '#92cc41', borderRadius: '1px' }}></div>
+        <div style={{ width: '10px', height: '10px', backgroundColor: '#e7ff5c', borderRadius: '1px' }}></div>
+        <span>More</span>
+      </div>
+    </div>
+  );
+}
+
+// --- MAIN WORKOUT TRACKER PAGE ---
 export default function WorkoutTracker() {
   const [summaryData, setSummaryData] = useState(null);
   const [workoutsData, setWorkoutsData] = useState(null);
@@ -79,6 +209,12 @@ export default function WorkoutTracker() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* 1.5. Workout Heatmap Section */}
+      <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
+        <p className="title">Quest Map (Contribution Grid)</p>
+        <WorkoutHeatmap workouts={workoutsData} />
       </section>
 
       {/* 2. Fitness Trainer Dialogue Balloon */}
