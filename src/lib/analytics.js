@@ -12,6 +12,7 @@ export function analyzeExpenses(expenses) {
   const merchantsMap = {};
   const daysMap = { 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 }; // Sun-Sat amounts
   const monthlyBreakdownMap = {}; // Last 30 days category breakdown
+  const paymentBreakdownMap = {};
   let monthlyTotal = 0;
 
   const knownMerchants = ['starbucks', 'oxxo', 'uber', 'amazon', 'costco', 'spotify', 'farmacia', 'cinepolis'];
@@ -27,6 +28,11 @@ export function analyzeExpenses(expenses) {
       tinyCount++;
       tinyTotal += exp.amount;
     }
+
+    // Payment Method grouping
+    const method = exp.payment_method ? exp.payment_method.toLowerCase().trim() : 'unknown';
+    const formattedMethod = method.charAt(0).toUpperCase() + method.slice(1);
+    paymentBreakdownMap[formattedMethod] = (paymentBreakdownMap[formattedMethod] || 0) + exp.amount;
 
     // 2. Rhythm (Day of Week)
     let isRecent30Days = false;
@@ -111,7 +117,8 @@ export function analyzeExpenses(expenses) {
     story,
     totalSpent,
     monthlyBreakdown: monthlyBreakdownMap,
-    monthlyTotal: monthlyTotal
+    monthlyTotal: monthlyTotal,
+    paymentBreakdown: paymentBreakdownMap
   };
 }
 

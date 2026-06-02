@@ -20,6 +20,7 @@ export default function FinanceCharts() {
       const params = new URLSearchParams(window.location.search);
       if (params.get('category')) setFilterQuery({ type: 'category', value: params.get('category') });
       else if (params.get('merchant')) setFilterQuery({ type: 'merchant', value: params.get('merchant') });
+      else if (params.get('payment')) setFilterQuery({ type: 'payment', value: params.get('payment') });
     }
 
     const token = import.meta.env.PUBLIC_API_TOKEN || '';
@@ -61,6 +62,12 @@ export default function FinanceCharts() {
       filteredExpenses = expensesData.filter(e => e.category === filterQuery.value);
     } else if (filterQuery.type === 'merchant') {
       filteredExpenses = expensesData.filter(e => e.description?.toLowerCase().includes(filterQuery.value.toLowerCase()));
+    } else if (filterQuery.type === 'payment') {
+      filteredExpenses = expensesData.filter(e => {
+        const method = e.payment_method ? e.payment_method.toLowerCase().trim() : 'unknown';
+        const formattedMethod = method.charAt(0).toUpperCase() + method.slice(1);
+        return formattedMethod === filterQuery.value;
+      });
     }
     
     const filteredTotal = filteredExpenses.reduce((acc, exp) => acc + exp.amount, 0);
@@ -112,7 +119,25 @@ export default function FinanceCharts() {
   // --- MAIN DASHBOARD ---
   const breakdown = analytics.monthlyBreakdown || {};
   const total = analytics.monthlyTotal || 1;
+  const paymentBreakdown = analytics.paymentBreakdown || {};
+  const paymentTotal = analytics.totalSpent || 1;
   const recent = summaryData.recent_expenses || [];
+
+  const paymentData = Object.entries(paymentBreakdown)
+    .map(([method, amount]) => {
+      const percentage = Math.round((amount / paymentTotal) * 100);
+      return { method, amount, percentage };
+    })
+    .sort((a, b) => b.amount - a.amount);
+
+  const getMethodColor = (method, index) => {
+    const key = method.toLowerCase();
+    const fallbacks = ['#209cee', '#92cc41', '#fbed64', '#e76e55', '#a3e5fc'];
+    if (key.includes('card')) return '#209cee';
+    if (key.includes('cash')) return '#92cc41';
+    if (key.includes('transfer')) return '#fbed64';
+    return fallbacks[index % fallbacks.length];
+  };
 
   return (
     <div>
@@ -191,6 +216,92 @@ export default function FinanceCharts() {
           })}
         </div>
       </section>
+
+      {/* 3.5. Payment Method Breakdown */}
+      <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
+        <p className="title">Payment Method Breakdown (Total Portfolio)</p>
+        
+        {paymentData.length > 0 ? (
+          <div>
+            {/* Custom Segmented Bar Chart */}
+            <div style={{
+              display: 'flex',
+              height: '24px',
+              width: '100%',
+              backgroundColor: '#1a1c1e',
+              border: '4px solid #fff',
+              padding: '0',
+              overflow: 'hidden',
+              imageRendering: 'pixelated',
+              marginBottom: '15px'
+            }}>
+              {paymentData.map((item, index) => {
+                const color = getMethodColor(item.method, index);
+                const widthPercent = item.percentage > 0 ? item.percentage : 1;
+                return (
+                  <div
+                    key={item.method}
+                    style={{
+                      width: `${widthPercent}%`,
+                      backgroundColor: color,
+                      height: '100%',
+                      transition: 'width 0.3s ease'
+                    }}
+                    title={`${item.method}: ${item.percentage}%`}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Custom Legend */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '20px', 
+              justifyContent: 'center', 
+              flexWrap: 'wrap',
+              marginTop: '15px'
+            }}>
+              {paymentData.map((item, index) => {
+                const color = getMethodColor(item.method, index);
+                return (
+                  <div 
+                    key={item.method}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => {
+                      setFilterQuery({ type: 'payment', value: item.method });
+                      window.history.pushState({}, '', `?payment=${item.method}`);
+                    }}
+                  >
+                    <span style={{ 
+                      display: 'inline-block', 
+                      width: '12px', 
+                      height: '12px', 
+                      backgroundColor: color, 
+                      marginRight: '8px',
+                      border: '2px solid #fff'
+                    }}></span>
+                    <span style={{ 
+                      fontSize: '0.65rem', 
+                      textDecoration: 'underline',
+                      color: '#fff'
+                    }}>
+                      {item.method} ({item.percentage}%)
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <p style={{ fontSize: '0.8rem' }}>No payment methods found.</p>
+        )}
+      </section>
+
+
 
       {/* 4. Terminal Ledger */}
       <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
