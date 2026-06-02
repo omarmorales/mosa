@@ -10,7 +10,12 @@ import 'nes.css/css/nes.min.css';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    
+    <!-- Preconnect to Google Fonts to speed up font delivery -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style is:global>
       body {
         font-family: 'Press Start 2P', cursive;
@@ -43,6 +48,49 @@ import 'nes.css/css/nes.min.css';
       /* Progress bar tweaks for dark theme */
       .nes-progress { height: 30px; }
 
+      /* Retro Preloader Overlay */
+      .retro-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #212529;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 1;
+        transition: opacity 0.4s ease-in-out, visibility 0.4s;
+        visibility: visible;
+      }
+      
+      .retro-loader.fade-out {
+        opacity: 0;
+        visibility: hidden;
+      }
+      
+      .loader-content {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+      
+      .loader-text {
+        font-family: 'Press Start 2P', monospace;
+        color: #fbed64;
+        font-size: 0.8rem;
+        margin: 0;
+        letter-spacing: 2px;
+        animation: blink 1s step-end infinite;
+      }
+      
+      @keyframes blink {
+        50% { opacity: 0; }
+      }
+
       /* Mobile First / Responsive Adjustments */
       @media (max-width: 768px) {
         body { font-size: 12px; }
@@ -56,6 +104,17 @@ import 'nes.css/css/nes.min.css';
     </style>
   </head>
   <body>
+    <!-- Retro Loader Screen -->
+    <div id="loader" class="retro-loader">
+      <div class="loader-content">
+        <i class="nes-icon star is-large is-spinning"></i>
+        <p class="loader-text">BOOTING SYSTEM...</p>
+        <div class="nes-progress is-primary" style="width: 250px;">
+          <div class="bar" id="loader-bar" style="width: 0%;"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="container">
       <header>
         <h1><i class="nes-icon is-large star"></i> Developer Player 1 <i class="nes-icon is-large star"></i></h1>
@@ -63,5 +122,33 @@ import 'nes.css/css/nes.min.css';
       </header>
       <slot />
     </div>
+
+    <script is:inline>
+      // Fast fake progress bar for retro booting feel
+      const bar = document.getElementById('loader-bar');
+      let progress = 0;
+      const interval = setInterval(() => {
+        if (progress < 90) {
+          progress += Math.floor(Math.random() * 15) + 5;
+          if (progress > 90) progress = 90;
+          if (bar) bar.style.width = progress + '%';
+        }
+      }, 70);
+
+      window.addEventListener('load', () => {
+        // Set progress to 100%
+        clearInterval(interval);
+        if (bar) bar.style.width = '100%';
+        
+        // Hide loader after a tiny delay for visual polish
+        setTimeout(() => {
+          const loader = document.getElementById('loader');
+          if (loader) {
+            loader.classList.add('fade-out');
+          }
+        }, 200);
+      });
+    </script>
   </body>
 </html>
+

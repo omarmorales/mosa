@@ -111,7 +111,14 @@ export default function FinanceCharts() {
         <p style={{ color: '#209cee', marginBottom: '10px' }}>Financial Advisor Insight</p>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'nowrap' }}>
           <div style={{ textAlign: 'center', flexShrink: 0 }}>
-            <img src="/advisor.png" alt="Advisor" style={{ width: '130px', imageRendering: 'pixelated' }} />
+            <img 
+              src="/advisor.png" 
+              alt="Advisor" 
+              width="130" 
+              height="130" 
+              fetchpriority="high"
+              style={{ width: '130px', height: '130px', imageRendering: 'pixelated' }} 
+            />
           </div>
           <div className="nes-balloon from-left is-dark" style={{ flex: 1, padding: '1rem', minWidth: 0 }}>
             <p style={{ fontSize: '0.8rem', lineHeight: '1.6' }}>{analytics.story}</p>
