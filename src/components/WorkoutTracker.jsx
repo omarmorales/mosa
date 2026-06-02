@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { analyzeWorkouts } from '../lib/analytics.js';
+import RetroTypewriter from './RetroTypewriter.jsx';
 
 // --- GITHUB STYLE WORKOUT HEATMAP COMPONENT ---
 function WorkoutHeatmap({ workouts }) {
@@ -135,6 +136,12 @@ export default function WorkoutTracker() {
   const [summaryData, setSummaryData] = useState(null);
   const [workoutsData, setWorkoutsData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [skipTrainerTyping, setSkipTrainerTyping] = useState(false);
+
+  // Reset typewriter skip when trainer story text changes
+  useEffect(() => {
+    setSkipTrainerTyping(false);
+  }, [summaryData, workoutsData]);
 
   useEffect(() => {
     const token = import.meta.env.PUBLIC_API_TOKEN || '';
@@ -231,8 +238,15 @@ export default function WorkoutTracker() {
               style={{ width: '130px', height: '130px', imageRendering: 'pixelated' }} 
             />
           </div>
-          <div className="nes-balloon from-left is-dark" style={{ flex: 1, padding: '1rem', minWidth: 0 }}>
-            <p style={{ fontSize: '0.8rem', lineHeight: '1.6' }}>{analytics.story}</p>
+          <div 
+            className="nes-balloon from-left is-dark" 
+            style={{ flex: 1, padding: '1rem', minWidth: 0, cursor: 'pointer' }}
+            onClick={() => setSkipTrainerTyping(true)}
+            title="Click to skip animation"
+          >
+            <p style={{ fontSize: '0.8rem', lineHeight: '1.6', margin: 0 }}>
+              <RetroTypewriter text={analytics.story} skip={skipTrainerTyping} />
+            </p>
           </div>
         </div>
       </section>

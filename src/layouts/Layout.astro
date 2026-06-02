@@ -91,6 +91,41 @@ import 'nes.css/css/nes.min.css';
         50% { opacity: 0; }
       }
 
+      /* Blinking Retro Typewriter Cursor */
+      .retro-cursor {
+        display: inline-block;
+        width: 8px;
+        height: 15px;
+        background-color: currentColor;
+        margin-left: 4px;
+        animation: cursor-blink 0.8s step-end infinite;
+        vertical-align: middle;
+      }
+      @keyframes cursor-blink {
+        50% { background-color: transparent; }
+      }
+
+      /* Stepped interactive hover transitions for cards */
+      .nes-container.is-dark.is-rounded {
+        transition: transform 0.1s steps(2);
+      }
+      .nes-container.is-dark.is-rounded:hover {
+        transform: translateY(-4px);
+      }
+
+      /* Bobbing stepped animation for collectibles' SVGs on card hover */
+      .nes-container.is-dark.is-rounded:hover svg {
+        animation: collectible-bob 0.6s steps(4) infinite alternate;
+      }
+      @keyframes collectible-bob {
+        0% {
+          transform: translateY(0) rotate(0deg);
+        }
+        100% {
+          transform: translateY(-3px) rotate(8deg);
+        }
+      }
+
       /* Mobile First / Responsive Adjustments */
       @media (max-width: 768px) {
         body { font-size: 12px; }

@@ -16,14 +16,94 @@
     </div>
 
     <!-- Speech Balloon (Dialogue Box) -->
-    <div class="nes-balloon from-left is-dark dialogue-balloon" style="flex: 1; min-width: 0;">
-      <p>Hello! I'm Omar.</p>
-      <p style="margin-top: 10px;">I love building robust, performant web applications and automating my life.</p>
-      <p style="margin-top: 15px; color: #92cc41;">Skills: Python, React, Astro, Postgres</p>
+    <div class="nes-balloon from-left is-dark dialogue-balloon" id="intro-balloon" style="flex: 1; min-width: 0; cursor: pointer;" title="Click to skip typing">
+      <p class="typewriter-line" data-text="Hello! I'm Omar.">Hello! I'm Omar.</p>
+      <p class="typewriter-line" data-text="I love building robust, performant web applications and automating my life." style="margin-top: 10px;">I love building robust, performant web applications and automating my life.</p>
+      <p class="typewriter-line" data-text="Skills: Python, React, Astro, Postgres" style="margin-top: 15px; color: #92cc41;">Skills: Python, React, Astro, Postgres</p>
     </div>
 
   </div>
 </section>
+
+<script is:inline>
+  (() => {
+    const initTypewriter = () => {
+      const balloon = document.getElementById('intro-balloon');
+      if (!balloon) return;
+
+      const lines = balloon.querySelectorAll('.typewriter-line');
+      let skipTyping = false;
+      let activeInterval = null;
+
+      // Extract text content to avoid duplicating text manually
+      const texts = Array.from(lines).map(line => line.getAttribute('data-text') || line.innerText);
+
+      // Instantly clear content to start typing
+      lines.forEach(line => {
+        line.innerText = '';
+        line.style.display = 'none';
+      });
+
+      let currentLineIdx = 0;
+
+      const startTypingLine = (lineIdx) => {
+        if (lineIdx >= lines.length) return;
+
+        const line = lines[lineIdx];
+        const targetText = texts[lineIdx];
+        line.style.display = 'block';
+
+        // Append blinking block cursor
+        const cursor = document.createElement('span');
+        cursor.className = 'retro-cursor';
+        line.appendChild(cursor);
+
+        let charIdx = 0;
+        activeInterval = setInterval(() => {
+          if (skipTyping) {
+            clearInterval(activeInterval);
+            line.innerText = targetText;
+            return;
+          }
+
+          if (charIdx < targetText.length) {
+            const char = targetText.charAt(charIdx);
+            cursor.before(char);
+            charIdx++;
+          } else {
+            clearInterval(activeInterval);
+            cursor.remove();
+            currentLineIdx++;
+            startTypingLine(currentLineIdx);
+          }
+        }, 25);
+      };
+
+      // Click to skip typing
+      balloon.addEventListener('click', () => {
+        if (skipTyping) return;
+        skipTyping = true;
+        clearInterval(activeInterval);
+        
+        lines.forEach((line, idx) => {
+          line.style.display = 'block';
+          line.innerText = texts[idx];
+          const cursor = line.querySelector('.retro-cursor');
+          if (cursor) cursor.remove();
+        });
+      });
+
+      // Start typing sequence
+      startTypingLine(currentLineIdx);
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initTypewriter);
+    } else {
+      initTypewriter();
+    }
+  })();
+</script>
 
 <style>
   /* Ensure the dialogue box stays side-by-side with the image on tiny screens */

@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { analyzeExpenses } from '../lib/analytics.js';
+import RetroTypewriter from './RetroTypewriter.jsx';
 
 export default function FinanceCharts() {
   const [summaryData, setSummaryData] = useState(null);
   const [expensesData, setExpensesData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filterQuery, setFilterQuery] = useState({ type: null, value: null });
+  const [skipAdvisorTyping, setSkipAdvisorTyping] = useState(false);
+
+  // Reset typewriter skip when advisor story text changes
+  useEffect(() => {
+    setSkipAdvisorTyping(false);
+  }, [summaryData, expensesData]);
 
   useEffect(() => {
     // Parse URL params for drill-down on direct load
@@ -123,8 +130,15 @@ export default function FinanceCharts() {
               style={{ width: '130px', height: '130px', imageRendering: 'pixelated' }} 
             />
           </div>
-          <div className="nes-balloon from-left is-dark" style={{ flex: 1, padding: '1rem', minWidth: 0 }}>
-            <p style={{ fontSize: '0.8rem', lineHeight: '1.6' }}>{analytics.story}</p>
+          <div 
+            className="nes-balloon from-left is-dark" 
+            style={{ flex: 1, padding: '1rem', minWidth: 0, cursor: 'pointer' }}
+            onClick={() => setSkipAdvisorTyping(true)}
+            title="Click to skip animation"
+          >
+            <p style={{ fontSize: '0.8rem', lineHeight: '1.6', margin: 0 }}>
+              <RetroTypewriter text={analytics.story} skip={skipAdvisorTyping} />
+            </p>
           </div>
         </div>
       </section>
