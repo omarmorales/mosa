@@ -1,0 +1,18 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WorkoutTracker from '../components/WorkoutTracker.jsx';
+---
+
+<Layout title="Omar Morales - Workout Analytics">
+  <main>
+    <a href="/" class="nes-btn" style="margin-bottom: 30px;">&lt; Back</a>
+    
+    <div style="text-align: center; margin-bottom: 40px;">
+      <i class="nes-icon trophy is-large"></i>
+      <h2 style="margin-top: 20px;">Workout Analytics</h2>
+      <p style="color: #209cee;">Live JARVIS Sync</p>
+    </div>
+
+    <WorkoutTracker client:load />
+  </main>
+</Layout>

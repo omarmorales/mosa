@@ -6,7 +6,12 @@ export default function JarvisDashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('https://jarvis-life-tracker-production.up.railway.app/api/summary')
+    const token = import.meta.env.PUBLIC_API_TOKEN || '';
+    fetch('https://jarvis-life-tracker-production.up.railway.app/api/summary', {
+      headers: {
+        'X-API-Token': token
+      }
+    })
       .then(res => {
         if (!res.ok) throw new Error('API down or unauthorized');
         return res.json();
@@ -55,10 +60,10 @@ export default function JarvisDashboard() {
              <p style={{ fontSize: '1.2rem' }}>{formattedExpenses} <i className="nes-icon coin is-small"></i></p>
           </a>
 
-          <div className="nes-container is-dark is-rounded" style={{ flex: 1, minWidth: '200px' }}>
-             <p style={{ color: '#209cee', fontSize: '0.8rem', marginBottom: '15px' }}>Workouts</p>
+          <a href="/workouts" className="nes-container is-dark is-rounded clickable-card" style={{ flex: 1, minWidth: '200px', display: 'block', textDecoration: 'none', color: 'inherit', transition: 'transform 0.1s' }}>
+             <p style={{ color: '#209cee', fontSize: '0.8rem', marginBottom: '15px' }}>Workouts <span style={{ fontSize: '0.5rem', color: '#fff' }}>(Details)</span></p>
              <p style={{ fontSize: '1.2rem' }}>{workouts} <i className="nes-icon trophy is-small"></i></p>
-          </div>
+          </a>
 
           <div className="nes-container is-dark is-rounded" style={{ flex: 1, minWidth: '200px' }}>
              <p style={{ color: '#92cc41', fontSize: '0.8rem', marginBottom: '15px' }}>System Status</p>

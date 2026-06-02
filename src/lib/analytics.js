@@ -114,3 +114,62 @@ export function analyzeExpenses(expenses) {
     monthlyTotal: monthlyTotal
   };
 }
+
+export function analyzeWorkouts(workouts) {
+  if (!workouts || workouts.length === 0) {
+    return {
+      workoutCount: 0,
+      totalMinutes: 0,
+      averageMinutes: 0,
+      xp: 0,
+      level: 1,
+      xpNextLevel: 200,
+      xpProgress: 0,
+      typesBreakdown: {},
+      story: "Trainer says: No quest entries found. Let's get moving to level up your stats!"
+    };
+  }
+
+  const workoutCount = workouts.length;
+  const totalMinutes = workouts.reduce((sum, w) => sum + (w.duration_minutes || 0), 0);
+  const averageMinutes = Math.round(totalMinutes / workoutCount);
+
+  // RPG Progression: 1 XP per minute active. Level up every 200 XP.
+  const xp = totalMinutes;
+  const level = Math.floor(xp / 200) + 1;
+  const xpInCurrentLevel = xp % 200;
+  const xpProgress = Math.round((xpInCurrentLevel / 200) * 100);
+  const xpNextLevel = 200 - xpInCurrentLevel;
+
+  // Breakdown by type
+  const typesBreakdown = {};
+  workouts.forEach(w => {
+    const type = w.workout_type || 'General';
+    typesBreakdown[type] = (typesBreakdown[type] || 0) + (w.duration_minutes || 0);
+  });
+
+  // Trainer motivational commentary
+  let story = `Trainer says: `;
+  if (totalMinutes >= 150) {
+    story += `Outstanding! You've achieved ${totalMinutes} active minutes, crushing the weekly standard. Your stamina is at peak capacity!`;
+  } else if (workoutCount >= 4) {
+    story += `Your consistency is legendary! ${workoutCount} workouts recorded. Keep grinding to level up your card!`;
+  } else if (totalMinutes > 0) {
+    story += `Good effort! You've earned ${xp} XP this week. Just ${xpNextLevel} XP left to level up to Level ${level + 1}!`;
+  } else {
+    story += `A journey of a thousand miles begins with a single step. Complete a workout to start your training log.`;
+  }
+
+  return {
+    workoutCount,
+    totalMinutes,
+    averageMinutes,
+    xp,
+    level,
+    xpNextLevel,
+    xpProgress,
+    typesBreakdown,
+    story
+  };
+}
+

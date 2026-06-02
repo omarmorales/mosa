@@ -15,9 +15,12 @@ export default function FinanceCharts() {
       else if (params.get('merchant')) setFilterQuery({ type: 'merchant', value: params.get('merchant') });
     }
 
+    const token = import.meta.env.PUBLIC_API_TOKEN || '';
+    const headers = { 'X-API-Token': token };
+
     Promise.all([
-      fetch('https://jarvis-life-tracker-production.up.railway.app/api/summary').then(r => r.json()),
-      fetch('https://jarvis-life-tracker-production.up.railway.app/api/expenses').then(r => r.json())
+      fetch('https://jarvis-life-tracker-production.up.railway.app/api/summary', { headers }).then(r => r.json()),
+      fetch('https://jarvis-life-tracker-production.up.railway.app/api/expenses', { headers }).then(r => r.json())
     ])
       .then(([summary, expenses]) => {
         setSummaryData(summary);
