@@ -42,6 +42,18 @@ import 'nes.css/css/nes.min.css';
         padding-bottom: 20px;
       }
       h1 { color: #209cee; font-size: 2rem; margin-bottom: 10px; word-wrap: break-word; }
+      header h1 {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+      header h1 .nes-icon.star {
+        width: 64px;
+        height: 64px;
+        margin: 0 !important;
+      }
       h2, h3 { color: #fbed64; }
       .nes-btn { font-family: 'Press Start 2P', cursive; }
       
@@ -135,6 +147,11 @@ import 'nes.css/css/nes.min.css';
         /* Make sure tables or flex containers don't break the viewport */
         .nes-table-responsive { margin: 0 -1rem; padding: 0 1rem; }
         .title { font-size: 14px; }
+
+        /* Hide header star icons on mobile to keep it clean */
+        header h1 .nes-icon.star {
+          display: none;
+        }
       }
     </style>
   </head>
