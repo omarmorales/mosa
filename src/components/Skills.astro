@@ -1,0 +1,83 @@
+---
+const skillCategories = [
+  {
+    title: "Frontend Core",
+    icon: "nes-icon coin is-small",
+    color: "#209cee",
+    skills: [
+      { name: "React", level: "EXPERT", badgeClass: "is-primary" },
+      { name: "Astro", level: "EXPERT", badgeClass: "is-success" },
+      { name: "JavaScript (ES6+)", level: "ADVANCED", badgeClass: "is-warning" },
+      { name: "HTML5 / CSS3", level: "ADVANCED", badgeClass: "is-dark" }
+    ]
+  },
+  {
+    title: "Backend & Data",
+    icon: "nes-icon trophy is-small",
+    color: "#92cc41",
+    skills: [
+      { name: "Python", level: "EXPERT", badgeClass: "is-success" },
+      { name: "FastAPI", level: "ADVANCED", badgeClass: "is-primary" },
+      { name: "Node.js", level: "ADVANCED", badgeClass: "is-warning" },
+      { name: "PostgreSQL", level: "ADVANCED", badgeClass: "is-error" }
+    ]
+  },
+  {
+    title: "Automation & DevTools",
+    icon: "nes-icon star is-small",
+    color: "#fbed64",
+    skills: [
+      { name: "Telegram Bots", level: "MASTER", badgeClass: "is-warning" },
+      { name: "Railway / Cloud", level: "ADVANCED", badgeClass: "is-primary" },
+      { name: "Docker", level: "INTERMEDIATE", badgeClass: "is-dark" },
+      { name: "Git", level: "EXPERT", badgeClass: "is-success" }
+    ]
+  }
+];
+---
+
+<section class="nes-container with-title is-dark" style="margin-bottom: 30px;">
+  <p class="title">Skill Inventory (Tech Stack)</p>
+
+  <div class="skills-grid" style="display: flex; flex-direction: column; gap: 25px;">
+    {skillCategories.map(cat => (
+      <div class="skill-category">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+          <i class={cat.icon}></i>
+          <h3 style={`font-size: 0.85rem; margin: 0; color: ${cat.color}; letter-spacing: 1px;`}>
+            {cat.title}
+          </h3>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+          {cat.skills.map(skill => (
+            <div class="skill-chip nes-container is-dark is-rounded" style="padding: 10px 14px; display: inline-flex; align-items: center; gap: 10px; flex: 1; min-width: 180px; box-sizing: border-box;">
+              <span style="font-size: 0.7rem; color: #fff; font-weight: bold; flex: 1;">{skill.name}</span>
+              <span class={`nes-badge ${skill.badgeClass}`} style="transform: scale(0.75); transform-origin: right center;">
+                <span class="is-dark">{skill.level}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .skill-chip {
+    background-color: #1a1c1e !important;
+    border: 2px solid #fff !important;
+    transition: transform 0.1s steps(2), border-color 0.2s;
+  }
+  .skill-chip:hover {
+    transform: translateY(-3px);
+    border-color: #209cee !important;
+  }
+
+  @media (max-width: 600px) {
+    .skill-chip {
+      min-width: 100% !important;
+    }
+  }
+</style>
