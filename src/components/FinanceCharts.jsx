@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { analyzeExpenses } from '../lib/analytics.js';
 import RetroTypewriter from './RetroTypewriter.jsx';
+import RetroLoadMore from './RetroLoadMore.jsx';
 
 export default function FinanceCharts() {
   const [summaryData, setSummaryData] = useState(null);
@@ -8,6 +9,7 @@ export default function FinanceCharts() {
   const [loading, setLoading] = useState(true);
   const [filterQuery, setFilterQuery] = useState({ type: null, value: null });
   const [skipAdvisorTyping, setSkipAdvisorTyping] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(15);
 
   // Reset typewriter skip when advisor story text changes
   useEffect(() => {
@@ -71,6 +73,8 @@ export default function FinanceCharts() {
     }
     
     const filteredTotal = filteredExpenses.reduce((acc, exp) => acc + exp.amount, 0);
+    const visibleFilteredExpenses = filteredExpenses.slice(0, visibleCount);
+    const hasMoreFiltered = visibleCount < filteredExpenses.length;
 
     return (
       <div>
@@ -100,7 +104,7 @@ export default function FinanceCharts() {
 
           <p style={{ marginTop: '20px', color: '#ff5c5c', fontSize: '0.8rem' }}>Filtered Ledger:</p>
           <div style={{ backgroundColor: '#000', padding: '15px', borderRadius: '5px', fontFamily: 'monospace', color: '#0f0', fontSize: '0.7rem', overflowX: 'auto' }}>
-            {filteredExpenses.map(exp => (
+            {visibleFilteredExpenses.map(exp => (
               <div key={exp.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '10px', borderBottom: '1px dashed #333', paddingBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#fff' }}>
                   <span>[{exp.date?.split(' ')[0]}] {exp.category}</span>
@@ -110,6 +114,12 @@ export default function FinanceCharts() {
               </div>
             ))}
             {filteredExpenses.length === 0 && <p>&gt; NO TRANSACTIONS FOUND.</p>}
+            <RetroLoadMore 
+              onLoadMore={() => setVisibleCount(prev => prev + 15)} 
+              hasMore={hasMoreFiltered}
+              currentCount={visibleFilteredExpenses.length}
+              totalCount={filteredExpenses.length}
+            />
           </div>
         </section>
       </div>
@@ -121,7 +131,9 @@ export default function FinanceCharts() {
   const total = analytics.monthlyTotal || 1;
   const paymentBreakdown = analytics.paymentBreakdown || {};
   const paymentTotal = analytics.totalSpent || 1;
-  const recent = summaryData.recent_expenses || [];
+  const allExpenses = expensesData && expensesData.length > 0 ? expensesData : (summaryData.recent_expenses || []);
+  const visibleExpenses = allExpenses.slice(0, visibleCount);
+  const hasMoreExpenses = visibleCount < allExpenses.length;
 
   const paymentData = Object.entries(paymentBreakdown)
     .map(([method, amount]) => {
@@ -307,7 +319,7 @@ export default function FinanceCharts() {
       <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
         <p className="title">Terminal Ledger (Recent)</p>
         <div style={{ backgroundColor: '#000', padding: '15px', borderRadius: '5px', fontFamily: 'monospace', color: '#0f0', fontSize: '0.7rem', overflowX: 'auto', lineHeight: '1.8' }}>
-          {recent.map(exp => (
+          {visibleExpenses.map(exp => (
             <div key={exp.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '10px', borderBottom: '1px dashed #333', paddingBottom: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: '#fff' }}>
                 <span>[{exp.date?.split(' ')[0]}] {exp.category}</span>
@@ -316,8 +328,13 @@ export default function FinanceCharts() {
               <span style={{ opacity: 0.7, marginTop: '4px' }}>Desc: {exp.description}</span>
             </div>
           ))}
-          {recent.length === 0 && <p>&gt; NO RECENT TRANSACTIONS FOUND.</p>}
-          <p style={{ marginTop: '10px' }}>&gt; END OF LOG</p>
+          {allExpenses.length === 0 && <p>&gt; NO RECENT TRANSACTIONS FOUND.</p>}
+          <RetroLoadMore 
+            onLoadMore={() => setVisibleCount(prev => prev + 15)} 
+            hasMore={hasMoreExpenses}
+            currentCount={visibleExpenses.length}
+            totalCount={allExpenses.length}
+          />
         </div>
       </section>
     </div>

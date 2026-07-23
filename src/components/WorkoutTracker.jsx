@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { analyzeWorkouts } from '../lib/analytics.js';
 import RetroTypewriter from './RetroTypewriter.jsx';
+import RetroLoadMore from './RetroLoadMore.jsx';
 
 // --- GITHUB STYLE WORKOUT HEATMAP COMPONENT ---
 function WorkoutHeatmap({ workouts }) {
@@ -137,6 +138,7 @@ export default function WorkoutTracker() {
   const [workoutsData, setWorkoutsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [skipTrainerTyping, setSkipTrainerTyping] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(15);
 
   // Reset typewriter skip when trainer story text changes
   useEffect(() => {
@@ -175,6 +177,8 @@ export default function WorkoutTracker() {
 
   const analytics = analyzeWorkouts(workoutsData);
   const colors = ['is-primary', 'is-success', 'is-warning', 'is-error', 'is-pattern'];
+  const visibleWorkouts = workoutsData.slice(0, visibleCount);
+  const hasMore = visibleCount < workoutsData.length;
 
   return (
     <div>
@@ -278,7 +282,7 @@ export default function WorkoutTracker() {
       <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
         <p className="title">Quest Log (History)</p>
         <div style={{ backgroundColor: '#000', padding: '15px', borderRadius: '5px', fontFamily: 'monospace', color: '#0f0', fontSize: '0.7rem', overflowX: 'auto', lineHeight: '1.8' }}>
-          {workoutsData.map(workout => (
+          {visibleWorkouts.map(workout => (
             <div key={workout.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '10px', borderBottom: '1px dashed #333', paddingBottom: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: '#fff' }}>
                 <span>[{workout.date?.split(' ')[0]}] {workout.workout_type}</span>
@@ -293,7 +297,12 @@ export default function WorkoutTracker() {
             </div>
           ))}
           {workoutsData.length === 0 && <p>&gt; NO QUEST ENTRIES FOUND IN DATABASE.</p>}
-          <p style={{ marginTop: '10px' }}>&gt; END OF LOG</p>
+          <RetroLoadMore 
+            onLoadMore={() => setVisibleCount(prev => prev + 15)} 
+            hasMore={hasMore}
+            currentCount={visibleWorkouts.length}
+            totalCount={workoutsData.length}
+          />
         </div>
       </section>
     </div>
