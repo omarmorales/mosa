@@ -122,6 +122,28 @@ export function analyzeExpenses(expenses) {
   };
 }
 
+export function normalizeWorkoutType(rawType) {
+  if (!rawType) return 'General';
+  const clean = rawType.trim().toLowerCase();
+
+  // Normalize Gym / Weightlifting / Pesas / Gimnasio
+  if (clean === 'gym' || clean === 'weightlifting' || clean === 'pesas' || clean === 'gimnasio' || clean === 'strength training' || clean.includes('weightlifting')) {
+    return 'Weightlifting / Gym';
+  }
+
+  // Normalize Basketball / Baloncesto
+  if (clean === 'baloncesto' || clean === 'basketball' || clean === 'basquetbol' || clean === 'básquetbol' || clean === 'basquet') {
+    return 'Basketball';
+  }
+
+  // Normalize Walking / Caminata
+  if (clean === 'walking' || clean === 'caminata' || clean === 'caminar' || clean === 'walk') {
+    return 'Walking';
+  }
+
+  return rawType.charAt(0).toUpperCase() + rawType.slice(1);
+}
+
 export function analyzeWorkouts(workouts) {
   if (!workouts || workouts.length === 0) {
     return {
@@ -148,10 +170,10 @@ export function analyzeWorkouts(workouts) {
   const xpProgress = Math.round((xpInCurrentLevel / 200) * 100);
   const xpNextLevel = 200 - xpInCurrentLevel;
 
-  // Breakdown by type
+  // Breakdown by type (using normalized workout names)
   const typesBreakdown = {};
   workouts.forEach(w => {
-    const type = w.workout_type || 'General';
+    const type = normalizeWorkoutType(w.workout_type);
     typesBreakdown[type] = (typesBreakdown[type] || 0) + (w.duration_minutes || 0);
   });
 

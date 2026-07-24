@@ -27,16 +27,16 @@ export default function JarvisDashboard() {
       });
   }, []);
 
-  // Parse the actual schema from jarvis-life-tracker
-  const expensesMXN = data?.last_7_days?.total_spending?.MXN || 0;
-  const workouts = data?.last_7_days?.workout_count || 0;
+  // Parse the actual schema from jarvis-life-tracker (support 30-day log with fallback)
+  const expensesMXN = data?.last_30_days?.total_spending?.MXN ?? data?.last_7_days?.total_spending?.MXN ?? 0;
+  const workouts = data?.last_30_days?.workout_count ?? data?.last_7_days?.workout_count ?? 0;
 
   // Format the MXN expenses cleanly
   const formattedExpenses = `$${expensesMXN.toLocaleString()}`;
 
   return (
     <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
-      <p className="title">Player Stats (7-Day Log)</p>
+      <p className="title">Player Stats (30-Day Log)</p>
       
       {loading && (
         <div style={{ textAlign: 'center', padding: '20px' }}>

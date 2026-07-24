@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { analyzeWorkouts } from '../lib/analytics.js';
+import { analyzeWorkouts, normalizeWorkoutType } from '../lib/analytics.js';
 import RetroTypewriter from './RetroTypewriter.jsx';
 import RetroLoadMore from './RetroLoadMore.jsx';
 
@@ -285,7 +285,7 @@ export default function WorkoutTracker() {
           {visibleWorkouts.map(workout => (
             <div key={workout.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '10px', borderBottom: '1px dashed #333', paddingBottom: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: '#fff' }}>
-                <span>[{workout.date?.split(' ')[0]}] {workout.workout_type}</span>
+                <span>[{workout.date?.split(' ')[0]}] {normalizeWorkoutType(workout.workout_type)}</span>
                 <span style={{ color: '#209cee' }}>+ {workout.duration_minutes} XP ({workout.duration_minutes} Mins)</span>
               </div>
               {workout.intensity && (
