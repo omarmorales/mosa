@@ -2,7 +2,7 @@
 const skillCategories = [
   {
     title: "Frontend Core",
-    icon: "nes-icon coin is-small",
+    iconType: "frontend",
     color: "#209cee",
     skills: [
       { name: "React", level: "EXPERT", badgeClass: "is-primary" },
@@ -13,7 +13,7 @@ const skillCategories = [
   },
   {
     title: "Backend & Data",
-    icon: "nes-icon trophy is-small",
+    iconType: "backend",
     color: "#92cc41",
     skills: [
       { name: "Python", level: "EXPERT", badgeClass: "is-success" },
@@ -24,7 +24,7 @@ const skillCategories = [
   },
   {
     title: "Automation & DevTools",
-    icon: "nes-icon star is-small",
+    iconType: "devtools",
     color: "#fbed64",
     skills: [
       { name: "Telegram Bots", level: "MASTER", badgeClass: "is-warning" },
@@ -43,18 +43,32 @@ const skillCategories = [
     {skillCategories.map(cat => (
       <div class="skill-category">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-          <i class={cat.icon}></i>
+          {cat.iconType === "frontend" && (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="image-rendering: pixelated; flex-shrink: 0;">
+              <path d="M2 3H22V17H13V19H17V21H7V19H11V17H2V3ZM4 5V15H20V5H4ZM6 7H10V9H6V7ZM12 7H18V9H12V7ZM6 11H14V13H6V11Z" fill="#209cee"/>
+            </svg>
+          )}
+          {cat.iconType === "backend" && (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="image-rendering: pixelated; flex-shrink: 0;">
+              <path d="M3 2H21V7H3V2ZM5 4V5H19V4H5ZM7 4.5H9V4.51H7V4.5ZM3 9H21V14H3V9ZM5 11V12H19V11H5ZM7 11.5H9V11.51H7V11.5ZM3 16H21V21H3V16ZM5 18V19H19V18H5ZM7 18.5H9V18.51H7V18.5Z" fill="#92cc41"/>
+            </svg>
+          )}
+          {cat.iconType === "devtools" && (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="image-rendering: pixelated; flex-shrink: 0;">
+              <path d="M2 3H22V19H2V3ZM4 5V17H20V5H4ZM6 7H9V9H6V7ZM9 9H12V11H9V9ZM6 11H9V13H6V11ZM12 13H18V15H12V13Z" fill="#fbed64"/>
+            </svg>
+          )}
           <h3 style={`font-size: 0.85rem; margin: 0; color: ${cat.color}; letter-spacing: 1px;`}>
             {cat.title}
           </h3>
         </div>
 
-        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+        <div class="skill-chips-wrapper">
           {cat.skills.map(skill => (
-            <div class="skill-chip nes-container is-dark is-rounded" style="padding: 10px 14px; display: inline-flex; align-items: center; gap: 10px; flex: 1; min-width: 180px; box-sizing: border-box;">
-              <span style="font-size: 0.7rem; color: #fff; font-weight: bold; flex: 1;">{skill.name}</span>
-              <span class={`nes-badge ${skill.badgeClass}`} style="transform: scale(0.75); transform-origin: right center;">
-                <span class="is-dark">{skill.level}</span>
+            <div class="skill-chip nes-container is-dark is-rounded">
+              <span class="skill-chip-name">{skill.name}</span>
+              <span class={`retro-skill-badge ${skill.badgeClass}`}>
+                {skill.level}
               </span>
             </div>
           ))}
@@ -65,19 +79,65 @@ const skillCategories = [
 </section>
 
 <style>
+  .skill-chips-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
   .skill-chip {
     background-color: #1a1c1e !important;
     border: 2px solid #fff !important;
+    padding: 10px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
     transition: transform 0.1s steps(2), border-color 0.2s;
   }
+
   .skill-chip:hover {
     transform: translateY(-3px);
     border-color: #209cee !important;
   }
 
+  .skill-chip-name {
+    font-size: 0.7rem;
+    color: #fff;
+    font-weight: bold;
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+  }
+
+  .retro-skill-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 6px;
+    font-size: 0.55rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: 2px solid;
+    background-color: #101214;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
+  }
+
+  .retro-skill-badge.is-primary { color: #209cee; border-color: #209cee; }
+  .retro-skill-badge.is-success { color: #92cc41; border-color: #92cc41; }
+  .retro-skill-badge.is-warning { color: #fbed64; border-color: #fbed64; }
+  .retro-skill-badge.is-error   { color: #e76e55; border-color: #e76e55; }
+  .retro-skill-badge.is-dark    { color: #b5b5b5; border-color: #7f7f7f; }
+
   @media (max-width: 600px) {
-    .skill-chip {
-      min-width: 100% !important;
+    .skill-chips-wrapper {
+      grid-template-columns: 1fr;
     }
   }
 </style>
