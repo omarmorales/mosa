@@ -41,6 +41,68 @@ export function getCurrentMonthStats(expenses = [], workouts = []) {
   };
 }
 
+export function getMonthlyComparison(expenses = []) {
+  if (!expenses || expenses.length === 0) {
+    return { months: [], maxSpent: 1, trend: null };
+  }
+
+  const now = new Date();
+  const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  const monthsMap = {};
+  expenses.forEach(exp => {
+    if (exp && exp.date && exp.amount) {
+      const dateStr = exp.date.includes(' ') ? exp.date.split(' ')[0] : exp.date;
+      const ym = dateStr.substring(0, 7);
+      if (!monthsMap[ym]) {
+        monthsMap[ym] = { ym, total: 0, count: 0 };
+      }
+      monthsMap[ym].total += Number(exp.amount) || 0;
+      monthsMap[ym].count += 1;
+    }
+  });
+
+  const monthKeys = Object.keys(monthsMap).sort();
+  const months = monthKeys.map(ym => {
+    const [year, monthNum] = ym.split('-');
+    const dateObj = new Date(parseInt(year, 10), parseInt(monthNum, 10) - 1, 1);
+    const monthName = dateObj.toLocaleString('en-US', { month: 'short' });
+    const fullLabel = `${monthName} ${year}`;
+    const total = monthsMap[ym].total;
+    return {
+      ym,
+      label: fullLabel,
+      shortLabel: monthName,
+      year,
+      total,
+      count: monthsMap[ym].count,
+      isCurrent: ym === currentYM
+    };
+  });
+
+  const maxSpent = months.reduce((max, m) => Math.max(max, m.total), 0) || 1;
+
+  let trend = null;
+  if (months.length >= 2) {
+    const currentMonthObj = months[months.length - 1];
+    const prevMonthObj = months[months.length - 2];
+    const diff = currentMonthObj.total - prevMonthObj.total;
+    const percentage = prevMonthObj.total > 0 ? Math.round((diff / prevMonthObj.total) * 100) : 0;
+    
+    trend = {
+      currentLabel: currentMonthObj.label,
+      prevLabel: prevMonthObj.label,
+      diff: Math.abs(diff),
+      percentage: Math.abs(percentage),
+      isDecrease: diff < 0,
+      isIncrease: diff > 0,
+      isEqual: diff === 0
+    };
+  }
+
+  return { months, maxSpent, trend };
+}
+
 export function analyzeExpenses(expenses) {
   if (!expenses || expenses.length === 0) {
     return { merchants: [], topDay: 'Unknown', tinyPurchases: { count: 0, total: 0, percentage: 0 }, story: "No data available." };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { analyzeExpenses, getCurrentMonthStats, normalizePaymentMethod } from '../lib/analytics.js';
+import { analyzeExpenses, getCurrentMonthStats, normalizePaymentMethod, getMonthlyComparison } from '../lib/analytics.js';
 import RetroTypewriter from './RetroTypewriter.jsx';
 import RetroLoadMore from './RetroLoadMore.jsx';
 
@@ -56,6 +56,7 @@ export default function FinanceCharts() {
 
   const analytics = analyzeExpenses(expensesData);
   const monthStats = getCurrentMonthStats(expensesData, []);
+  const monthlyComp = getMonthlyComparison(expensesData);
   const colors = ['is-primary', 'is-success', 'is-warning', 'is-error', 'is-pattern'];
 
   // --- DETAIL VIEW ---
@@ -169,7 +170,7 @@ export default function FinanceCharts() {
       </section>
 
       {/* 1. Finance Guru Storytelling */}
-      <section style={{ marginBottom: '40px', marginTop: '10px' }}>
+      <section style={{ marginBottom: '30px', marginTop: '10px' }}>
         <p style={{ color: '#209cee', marginBottom: '10px' }}>Financial Advisor Insight</p>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'nowrap' }}>
           <div style={{ textAlign: 'center', flexShrink: 0 }}>
@@ -194,6 +195,103 @@ export default function FinanceCharts() {
           </div>
         </div>
       </section>
+
+      {/* 1.5. Monthly Comparison (Historical Trend) */}
+      {monthlyComp.months.length > 0 && (
+        <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
+          <p className="title">Monthly Comparison (Historical Trend)</p>
+          <p style={{ fontSize: '0.65rem', opacity: 0.8, marginBottom: '20px' }}>
+            Data Scope: Monthly spending comparison across recorded history
+          </p>
+
+          {/* Vertical Column Chart Container */}
+          <div style={{
+            backgroundColor: '#101214',
+            border: '3px solid #fff',
+            padding: '25px 20px 15px 20px',
+            borderRadius: '4px',
+            marginBottom: '20px'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'space-around',
+              gap: '20px',
+              height: '180px',
+              borderBottom: '2px dashed #444',
+              paddingBottom: '5px',
+              position: 'relative'
+            }}>
+              {monthlyComp.months.map(m => {
+                const heightPercent = Math.max(12, Math.round((m.total / monthlyComp.maxSpent) * 100));
+                const barColor = m.isCurrent ? '#92cc41' : '#209cee';
+                const labelColor = m.isCurrent ? '#92cc41' : '#fff';
+
+                return (
+                  <div
+                    key={m.ym}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      flex: 1,
+                      maxWidth: '130px',
+                      height: '100%',
+                      justifyContent: 'flex-end'
+                    }}
+                  >
+                    {/* Amount Label above Bar */}
+                    <span style={{ fontSize: '0.7rem', color: labelColor, marginBottom: '8px', fontWeight: 'bold' }}>
+                      ${Math.round(m.total).toLocaleString()}
+                    </span>
+
+                    {/* Pixel Bar */}
+                    <div
+                      title={`${m.label}: $${m.total.toLocaleString()} MXN (${m.count} txs)`}
+                      style={{
+                        width: '100%',
+                        height: `${heightPercent}%`,
+                        backgroundColor: barColor,
+                        border: '3px solid #fff',
+                        boxSizing: 'border-box',
+                        transition: 'height 0.4s ease',
+                        cursor: 'pointer',
+                        position: 'relative'
+                      }}
+                    />
+
+                    {/* Month Label below baseline */}
+                    <span style={{ fontSize: '0.65rem', marginTop: '10px', color: labelColor, textAlign: 'center' }}>
+                      {m.label} {m.isCurrent && <span style={{ fontSize: '0.55rem', color: '#fbed64', display: 'block' }}>(Current)</span>}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Trend Banner */}
+          {monthlyComp.trend && (
+            <div className="nes-container is-rounded" style={{ backgroundColor: '#1a1c1e', padding: '12px 16px', fontSize: '0.75rem' }}>
+              {monthlyComp.trend.isDecrease && (
+                <p style={{ color: '#92cc41', margin: 0 }}>
+                  📉 <span style={{ fontWeight: 'bold' }}>Spending Decrease:</span> You spent <span style={{ textDecoration: 'underline' }}>${monthlyComp.trend.diff.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN ({monthlyComp.trend.percentage}%) less</span> in {monthlyComp.trend.currentLabel} compared to {monthlyComp.trend.prevLabel}.
+                </p>
+              )}
+              {monthlyComp.trend.isIncrease && (
+                <p style={{ color: '#ff5c5c', margin: 0 }}>
+                  📈 <span style={{ fontWeight: 'bold' }}>Spending Increase:</span> You spent <span style={{ textDecoration: 'underline' }}>${monthlyComp.trend.diff.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN ({monthlyComp.trend.percentage}%) more</span> in {monthlyComp.trend.currentLabel} compared to {monthlyComp.trend.prevLabel}.
+                </p>
+              )}
+              {monthlyComp.trend.isEqual && (
+                <p style={{ color: '#209cee', margin: 0 }}>
+                  ➡️ <span style={{ fontWeight: 'bold' }}>Equal Spending:</span> Your spending in {monthlyComp.trend.currentLabel} matched {monthlyComp.trend.prevLabel}.
+                </p>
+              )}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* 2. Category Breakdown (Current Month) */}
       <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
