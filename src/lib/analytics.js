@@ -1,5 +1,46 @@
 // src/lib/analytics.js
 
+export function isCurrentMonth(dateStr) {
+  if (!dateStr) return false;
+  const cleanDate = dateStr.split(' ')[0]; // "YYYY-MM-DD"
+  const now = new Date();
+  const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  return cleanDate.startsWith(currentYM);
+}
+
+export function getCurrentMonthName() {
+  return new Date().toLocaleString('en-US', { month: 'long' });
+}
+
+export function getCurrentMonthYear() {
+  const now = new Date();
+  const monthName = now.toLocaleString('en-US', { month: 'long' });
+  return `${monthName} ${now.getFullYear()}`;
+}
+
+export function getCurrentMonthStats(expenses = [], workouts = []) {
+  const now = new Date();
+  const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const monthName = now.toLocaleString('en-US', { month: 'long' });
+
+  const monthExpenses = (expenses || []).filter(e => e && e.date && isCurrentMonth(e.date));
+  const monthWorkouts = (workouts || []).filter(w => w && w.date && isCurrentMonth(w.date));
+
+  const expensesTotal = monthExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const workoutCount = monthWorkouts.length;
+  const workoutMinutes = monthWorkouts.reduce((sum, w) => sum + (Number(w.duration_minutes) || 0), 0);
+
+  return {
+    monthName,
+    year: now.getFullYear(),
+    currentYM,
+    expensesTotal,
+    expensesCount: monthExpenses.length,
+    workoutCount,
+    workoutMinutes
+  };
+}
+
 export function analyzeExpenses(expenses) {
   if (!expenses || expenses.length === 0) {
     return { merchants: [], topDay: 'Unknown', tinyPurchases: { count: 0, total: 0, percentage: 0 }, story: "No data available." };
@@ -11,14 +52,13 @@ export function analyzeExpenses(expenses) {
   
   const merchantsMap = {};
   const daysMap = { 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 }; // Sun-Sat amounts
-  const monthlyBreakdownMap = {}; // Last 30 days category breakdown
+  const monthlyBreakdownMap = {}; // Current month category breakdown
   const paymentBreakdownMap = {};
   let monthlyTotal = 0;
 
   const knownMerchants = ['starbucks', 'oxxo', 'uber', 'amazon', 'costco', 'spotify', 'farmacia', 'cinepolis'];
 
   const now = new Date();
-  const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
 
   expenses.forEach(exp => {
     totalSpent += exp.amount;
@@ -35,7 +75,7 @@ export function analyzeExpenses(expenses) {
     paymentBreakdownMap[formattedMethod] = (paymentBreakdownMap[formattedMethod] || 0) + exp.amount;
 
     // 2. Rhythm (Day of Week)
-    let isRecent30Days = false;
+    let inCurrentMonth = false;
     if (exp.date) {
       // Need to handle different date formats safely, typically YYYY-MM-DD
       const dateStr = exp.date.includes(' ') ? exp.date.split(' ')[0] : exp.date;
@@ -45,13 +85,13 @@ export function analyzeExpenses(expenses) {
       if (!isNaN(day)) {
         daysMap[day] += exp.amount;
       }
-      if (dateObj >= thirtyDaysAgo) {
-        isRecent30Days = true;
+      if (isCurrentMonth(exp.date)) {
+        inCurrentMonth = true;
       }
     }
 
     // 3. Category grouping (Monthly)
-    if (isRecent30Days) {
+    if (inCurrentMonth) {
       monthlyBreakdownMap[exp.category] = (monthlyBreakdownMap[exp.category] || 0) + exp.amount;
       monthlyTotal += exp.amount;
     }

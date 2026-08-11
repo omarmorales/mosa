@@ -205,7 +205,7 @@ export default function WorkoutTracker() {
           {/* Quick Metrics */}
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '10px' }}>
             <div className="nes-container is-dark is-rounded" style={{ flex: 1, minWidth: '200px' }}>
-              <p style={{ color: '#fbed64', fontSize: '0.7rem', marginBottom: '10px' }}>Consistency (7d)</p>
+              <p style={{ color: '#fbed64', fontSize: '0.7rem', marginBottom: '10px' }}>Total Quests</p>
               <p style={{ fontSize: '1.1rem' }}>{analytics.workoutCount} Quests <i className="nes-icon trophy is-small"></i></p>
             </div>
             
