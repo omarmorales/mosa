@@ -58,8 +58,6 @@ export function analyzeExpenses(expenses) {
 
   const knownMerchants = ['starbucks', 'oxxo', 'uber', 'amazon', 'costco', 'spotify', 'farmacia', 'cinepolis'];
 
-  const now = new Date();
-
   expenses.forEach(exp => {
     totalSpent += exp.amount;
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { analyzeExpenses } from '../lib/analytics.js';
+import { analyzeExpenses, getCurrentMonthStats } from '../lib/analytics.js';
 import RetroTypewriter from './RetroTypewriter.jsx';
 import RetroLoadMore from './RetroLoadMore.jsx';
 
@@ -55,6 +55,7 @@ export default function FinanceCharts() {
   if (!summaryData || !expensesData) return <p>Error loading data.</p>;
 
   const analytics = analyzeExpenses(expensesData);
+  const monthStats = getCurrentMonthStats(expensesData, []);
   const colors = ['is-primary', 'is-success', 'is-warning', 'is-error', 'is-pattern'];
 
   // --- DETAIL VIEW ---
@@ -153,8 +154,26 @@ export default function FinanceCharts() {
 
   return (
     <div>
+      {/* 0. Current Month Scope Banner */}
+      <section className="nes-container is-dark is-rounded" style={{ marginBottom: '25px', borderColor: '#209cee' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+          <div>
+            <p style={{ color: '#209cee', fontSize: '0.9rem', margin: 0, fontWeight: 'bold' }}>
+              Active Period: {monthStats.monthName} {monthStats.year}
+            </p>
+            <p style={{ fontSize: '0.7rem', opacity: 0.85, marginTop: '4px', margin: 0 }}>
+              Monthly Spent: <span style={{ color: '#fbed64' }}>${monthStats.expensesTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</span> ({monthStats.expensesCount} transactions)
+            </p>
+          </div>
+          <div style={{ fontSize: '0.65rem', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <span className="nes-badge"><span className="is-success" style={{ fontSize: '0.55rem' }}>Current Month ({monthStats.monthName})</span></span>
+            <span className="nes-badge"><span className="is-dark" style={{ fontSize: '0.55rem', border: '1px solid #666' }}>All-Time History</span></span>
+          </div>
+        </div>
+      </section>
+
       {/* 1. Finance Guru Storytelling */}
-      <section style={{ marginBottom: '40px', marginTop: '20px' }}>
+      <section style={{ marginBottom: '40px', marginTop: '10px' }}>
         <p style={{ color: '#209cee', marginBottom: '10px' }}>Financial Advisor Insight</p>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'nowrap' }}>
           <div style={{ textAlign: 'center', flexShrink: 0 }}>
@@ -180,36 +199,12 @@ export default function FinanceCharts() {
         </div>
       </section>
 
-      {/* 2. Merchant Leaderboard & Tiny Purchases */}
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '30px' }}>
-        <section className="nes-container with-title is-dark" style={{ flex: 1, minWidth: '250px' }}>
-          <p className="title">Merchant Leaderboard</p>
-          <ul className="nes-list is-disc" style={{ fontSize: '0.8rem' }}>
-            {analytics.merchants.map((m, i) => (
-              <li key={m.name} style={{ marginBottom: '10px' }}>
-                <a href={`?merchant=${m.name}`} style={{ color: '#fff', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); setFilterQuery({ type: 'merchant', value: m.name }); window.history.pushState({}, '', `?merchant=${m.name}`); }}>
-                  <span style={{ color: '#fbed64', cursor: 'pointer', textDecoration: 'underline' }}>#{i+1} {m.name}</span>: ${m.amount.toLocaleString()}
-                </a>
-              </li>
-            ))}
-            {analytics.merchants.length === 0 && <li>No top merchants found.</li>}
-          </ul>
-        </section>
-
-        <section className="nes-container with-title is-dark" style={{ flex: 1, minWidth: '250px' }}>
-          <p className="title">Tiny Purchases (&lt;$100)</p>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '1.5rem', color: '#ff5c5c' }}>{analytics.tinyPurchases.count} items</p>
-            <p style={{ fontSize: '0.8rem' }}>Totaling: ${analytics.tinyPurchases.total.toLocaleString()} MXN</p>
-            <progress className="nes-progress is-error" value={analytics.tinyPurchases.percentage} max="100" style={{ marginTop: '15px', height: '20px' }}></progress>
-            <p style={{ fontSize: '0.6rem', marginTop: '5px' }}>{analytics.tinyPurchases.percentage}% of all expenses</p>
-          </div>
-        </section>
-      </div>
-
-      {/* 3. Category Breakdown (Monthly) */}
+      {/* 2. Category Breakdown (Current Month) */}
       <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
-        <p className="title">Category Breakdown (Last 30 Days)</p>
+        <p className="title">Category Breakdown ({monthStats.monthName})</p>
+        <p style={{ fontSize: '0.65rem', color: '#92cc41', marginBottom: '15px' }}>
+          Data Scope: Current Month ({monthStats.monthName} {monthStats.year}) — Total: ${monthStats.expensesTotal.toLocaleString()} MXN
+        </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {Object.entries(breakdown).map(([category, amount], index) => {
             const percentage = Math.round((amount / total) * 100);
@@ -226,12 +221,45 @@ export default function FinanceCharts() {
               </div>
             );
           })}
+          {Object.keys(breakdown).length === 0 && (
+            <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>No expenses logged for {monthStats.monthName}.</p>
+          )}
         </div>
       </section>
 
-      {/* 3.5. Payment Method Breakdown */}
+      {/* 3. Merchant Leaderboard & Tiny Purchases (All-Time History) */}
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '30px' }}>
+        <section className="nes-container with-title is-dark" style={{ flex: 1, minWidth: '250px' }}>
+          <p className="title">Merchant Leaderboard (All-Time)</p>
+          <p style={{ fontSize: '0.6rem', opacity: 0.7, marginBottom: '12px' }}>Data Scope: All-Time History</p>
+          <ul className="nes-list is-disc" style={{ fontSize: '0.8rem' }}>
+            {analytics.merchants.map((m, i) => (
+              <li key={m.name} style={{ marginBottom: '10px' }}>
+                <a href={`?merchant=${m.name}`} style={{ color: '#fff', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); setFilterQuery({ type: 'merchant', value: m.name }); window.history.pushState({}, '', `?merchant=${m.name}`); }}>
+                  <span style={{ color: '#fbed64', cursor: 'pointer', textDecoration: 'underline' }}>#{i+1} {m.name}</span>: ${m.amount.toLocaleString()}
+                </a>
+              </li>
+            ))}
+            {analytics.merchants.length === 0 && <li>No top merchants found.</li>}
+          </ul>
+        </section>
+
+        <section className="nes-container with-title is-dark" style={{ flex: 1, minWidth: '250px' }}>
+          <p className="title">Tiny Purchases (&lt;$100) (All-Time)</p>
+          <p style={{ fontSize: '0.6rem', opacity: 0.7, marginBottom: '12px', textAlign: 'center' }}>Data Scope: All-Time History</p>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: '1.5rem', color: '#ff5c5c' }}>{analytics.tinyPurchases.count} items</p>
+            <p style={{ fontSize: '0.8rem' }}>Totaling: ${analytics.tinyPurchases.total.toLocaleString()} MXN</p>
+            <progress className="nes-progress is-error" value={analytics.tinyPurchases.percentage} max="100" style={{ marginTop: '15px', height: '20px' }}></progress>
+            <p style={{ fontSize: '0.6rem', marginTop: '5px' }}>{analytics.tinyPurchases.percentage}% of all expenses</p>
+          </div>
+        </section>
+      </div>
+
+      {/* 4. Payment Method Breakdown (All-Time History) */}
       <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
-        <p className="title">Payment Method Breakdown (Total Portfolio)</p>
+        <p className="title">Payment Method Breakdown (All-Time)</p>
+        <p style={{ fontSize: '0.65rem', opacity: 0.7, marginBottom: '15px' }}>Data Scope: All-Time Portfolio Distribution</p>
         
         {paymentData.length > 0 ? (
           <div>
@@ -313,11 +341,10 @@ export default function FinanceCharts() {
         )}
       </section>
 
-
-
-      {/* 4. Terminal Ledger */}
+      {/* 5. Terminal Ledger (Full Log) */}
       <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
-        <p className="title">Terminal Ledger (Recent)</p>
+        <p className="title">Terminal Ledger (Full History Log)</p>
+        <p style={{ fontSize: '0.65rem', opacity: 0.7, marginBottom: '15px' }}>Data Scope: Complete Chronological History Log</p>
         <div style={{ backgroundColor: '#000', padding: '15px', borderRadius: '5px', fontFamily: 'monospace', color: '#0f0', fontSize: '0.7rem', overflowX: 'auto', lineHeight: '1.8' }}>
           {visibleExpenses.map(exp => (
             <div key={exp.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '10px', borderBottom: '1px dashed #333', paddingBottom: '10px' }}>
@@ -340,3 +367,4 @@ export default function FinanceCharts() {
     </div>
   );
 }
+
