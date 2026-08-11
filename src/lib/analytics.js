@@ -68,9 +68,8 @@ export function analyzeExpenses(expenses) {
     }
 
     // Payment Method grouping
-    const method = exp.payment_method ? exp.payment_method.toLowerCase().trim() : 'unknown';
-    const formattedMethod = method.charAt(0).toUpperCase() + method.slice(1);
-    paymentBreakdownMap[formattedMethod] = (paymentBreakdownMap[formattedMethod] || 0) + exp.amount;
+    const method = normalizePaymentMethod(exp.payment_method);
+    paymentBreakdownMap[method] = (paymentBreakdownMap[method] || 0) + exp.amount;
 
     // 2. Rhythm (Day of Week)
     let inCurrentMonth = false;
@@ -158,6 +157,28 @@ export function analyzeExpenses(expenses) {
     monthlyTotal: monthlyTotal,
     paymentBreakdown: paymentBreakdownMap
   };
+}
+
+export function normalizePaymentMethod(rawMethod) {
+  if (!rawMethod) return 'Unknown';
+  const clean = rawMethod.trim().toLowerCase();
+
+  // Normalize Card / Tarjeta / Credit / Debit
+  if (clean === 'card' || clean === 'tarjeta' || clean === 'credit' || clean === 'debit' || clean.includes('card') || clean.includes('tarjeta')) {
+    return 'Card';
+  }
+
+  // Normalize Cash / Efectivo
+  if (clean === 'cash' || clean === 'efectivo' || clean.includes('cash') || clean.includes('efectivo')) {
+    return 'Cash';
+  }
+
+  // Normalize Transfer / Transferencia / SPEI
+  if (clean === 'transfer' || clean === 'transferencia' || clean === 'spei') {
+    return 'Transfer';
+  }
+
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
 }
 
 export function normalizeWorkoutType(rawType) {

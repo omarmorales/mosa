@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { analyzeExpenses, getCurrentMonthStats } from '../lib/analytics.js';
+import { analyzeExpenses, getCurrentMonthStats, normalizePaymentMethod } from '../lib/analytics.js';
 import RetroTypewriter from './RetroTypewriter.jsx';
 import RetroLoadMore from './RetroLoadMore.jsx';
 
@@ -66,11 +66,7 @@ export default function FinanceCharts() {
     } else if (filterQuery.type === 'merchant') {
       filteredExpenses = expensesData.filter(e => e.description?.toLowerCase().includes(filterQuery.value.toLowerCase()));
     } else if (filterQuery.type === 'payment') {
-      filteredExpenses = expensesData.filter(e => {
-        const method = e.payment_method ? e.payment_method.toLowerCase().trim() : 'unknown';
-        const formattedMethod = method.charAt(0).toUpperCase() + method.slice(1);
-        return formattedMethod === filterQuery.value;
-      });
+      filteredExpenses = expensesData.filter(e => normalizePaymentMethod(e.payment_method) === filterQuery.value);
     }
     
     const filteredTotal = filteredExpenses.reduce((acc, exp) => acc + exp.amount, 0);
