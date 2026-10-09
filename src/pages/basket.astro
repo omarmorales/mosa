@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BasketDashboard from '../components/basket/BasketDashboard.jsx';
+import ScrollBounceBall from '../components/basket/ScrollBounceBall.jsx';
+---
+
+<Layout title="Omar Morales - Basketball League Tracker">
+  <main>
+    <a href="/" class="nes-btn" style="margin-bottom: 25px;">&lt; Back to Hub</a>
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+      <ScrollBounceBall client:load />
+      <h2 style="margin-top: 10px; color: #ff9800;">Basketball League Arena</h2>
+      <p style="color: #92cc41; font-size: 0.75rem;">Tournaments, Finances & Team Stats</p>
+    </div>
+
+    <BasketDashboard client:load />
+  </main>
+</Layout>

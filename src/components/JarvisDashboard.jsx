@@ -11,12 +11,13 @@ export default function JarvisDashboard() {
     const headers = { 'X-API-Token': token };
 
     Promise.all([
-      fetch('https://jarvis-life-tracker-production.up.railway.app/api/summary', { headers }).then(r => r.ok ? r.json() : null),
-      fetch('https://jarvis-life-tracker-production.up.railway.app/api/expenses', { headers }).then(r => r.ok ? r.json() : null),
-      fetch('https://jarvis-life-tracker-production.up.railway.app/api/workouts', { headers }).then(r => r.ok ? r.json() : null)
+      fetch('https://jarvis-life-tracker-production.up.railway.app/api/summary', { headers }).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('https://jarvis-life-tracker-production.up.railway.app/api/expenses', { headers }).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('https://jarvis-life-tracker-production.up.railway.app/api/workouts', { headers }).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('https://jarvis-life-tracker-production.up.railway.app/api/basket/tournaments', { headers }).then(r => r.ok ? r.json() : null).catch(() => null)
     ])
-      .then(([summary, expenses, workouts]) => {
-        setData({ summary, expenses, workouts });
+      .then(([summary, expenses, workouts, tournaments]) => {
+        setData({ summary, expenses, workouts, tournaments });
         setLoading(false);
       })
       .catch(err => {
@@ -28,13 +29,25 @@ export default function JarvisDashboard() {
 
   const expensesList = data?.expenses || data?.summary?.recent_expenses || [];
   const workoutsList = data?.workouts || data?.summary?.recent_workouts || [];
+  const tournamentsList = Array.isArray(data?.tournaments) ? data.tournaments : [];
+
+  // Calculate cumulative record across all basketball tournaments
+  const basketTotalWins = tournamentsList.reduce((sum, t) => sum + (t.record?.wins || 0), 0);
+  const basketTotalLosses = tournamentsList.reduce((sum, t) => sum + (t.record?.losses || 0), 0);
+  const basketTotalMatches = basketTotalWins + basketTotalLosses;
+  const basketRecordFormatted = tournamentsList.length > 0
+    ? `${basketTotalWins}W - ${basketTotalLosses}L`
+    : '0W - 0L';
 
   const monthStats = getCurrentMonthStats(expensesList, workoutsList);
   const formattedExpenses = `$${monthStats.expensesTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
     <section className="nes-container with-title is-dark" style={{ marginBottom: '30px' }}>
-      <p className="title">Player Stats ({monthStats.monthName})</p>
+      <p className="title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+        <span>Player Stats ({monthStats.monthName})</span>
+        <span style={{ color: '#92cc41', fontSize: '0.6rem', textShadow: '0 0 4px #92cc41' }}>● LIVE</span>
+      </p>
       
       {loading && (
         <div style={{ textAlign: 'center', padding: '20px' }}>
@@ -51,25 +64,30 @@ export default function JarvisDashboard() {
       )}
 
       {data && !loading && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
           
-          <a href="/finances" className="nes-container is-dark is-rounded clickable-card" style={{ flex: 1, minWidth: '200px', display: 'block', textDecoration: 'none', color: 'inherit', transition: 'transform 0.1s' }}>
+          <a href="/finances" className="nes-container is-dark is-rounded clickable-card" style={{ display: 'block', textDecoration: 'none', color: 'inherit', transition: 'transform 0.1s' }}>
              <p style={{ color: '#fbed64', fontSize: '0.8rem', marginBottom: '15px' }}>MXN Spent ({monthStats.monthName}) <span style={{ fontSize: '0.5rem', color: '#fff' }}>(Details)</span></p>
              <p style={{ fontSize: '1.2rem' }}>{formattedExpenses} <i className="nes-icon coin is-small"></i></p>
              <p style={{ fontSize: '0.65rem', opacity: 0.8, marginTop: '8px' }}>{monthStats.expensesCount} transactions</p>
           </a>
 
-          <a href="/workouts" className="nes-container is-dark is-rounded clickable-card" style={{ flex: 1, minWidth: '200px', display: 'block', textDecoration: 'none', color: 'inherit', transition: 'transform 0.1s' }}>
+          <a href="/workouts" className="nes-container is-dark is-rounded clickable-card" style={{ display: 'block', textDecoration: 'none', color: 'inherit', transition: 'transform 0.1s' }}>
              <p style={{ color: '#209cee', fontSize: '0.8rem', marginBottom: '15px' }}>Workouts ({monthStats.monthName}) <span style={{ fontSize: '0.5rem', color: '#fff' }}>(Details)</span></p>
              <p style={{ fontSize: '1.2rem' }}>{monthStats.workoutCount} <i className="nes-icon trophy is-small"></i></p>
              <p style={{ fontSize: '0.65rem', opacity: 0.8, marginTop: '8px' }}>{monthStats.workoutMinutes} active mins</p>
           </a>
 
-          <div className="nes-container is-dark is-rounded" style={{ flex: 1, minWidth: '200px' }}>
-             <p style={{ color: '#92cc41', fontSize: '0.8rem', marginBottom: '15px' }}>System Status</p>
-             <p style={{ fontSize: '0.8rem', marginTop: '10px' }}><span style={{ color: '#92cc41' }}>ONLINE</span></p>
-             <p style={{ fontSize: '0.65rem', opacity: 0.8, marginTop: '8px' }}>{monthStats.currentYM} synced</p>
-          </div>
+          <a href="/basket" className="nes-container is-dark is-rounded clickable-card" style={{ display: 'block', textDecoration: 'none', color: 'inherit', transition: 'transform 0.1s' }}>
+             <p style={{ color: '#ff9800', fontSize: '0.8rem', marginBottom: '15px' }}>Basketball <span style={{ fontSize: '0.5rem', color: '#fff' }}>(League Hub)</span></p>
+             <p style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+               <img src="/pixel-basketball.svg" width="24" height="24" alt="" style={{ imageRendering: 'pixelated' }} />
+               <span>{basketRecordFormatted}</span>
+             </p>
+             <p style={{ fontSize: '0.65rem', opacity: 0.8, marginTop: '8px', color: '#92cc41' }}>
+               {basketTotalMatches} matches played &gt;
+             </p>
+          </a>
 
         </div>
       )}
