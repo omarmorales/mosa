@@ -4,7 +4,7 @@ import { formatMXN } from '../../lib/basketApi.js';
 export default function TournamentFinancials({ tournamentData }) {
   if (!tournamentData) return null;
 
-  const { tournament, financials } = tournamentData;
+  const { financials } = tournamentData;
   const percent = Math.min(100, Math.max(0, financials?.percentage_collected ?? 0));
 
   // Determine progress bar color theme
@@ -39,30 +39,6 @@ export default function TournamentFinancials({ tournamentData }) {
       {/* Detailed Budget Breakdown Cards */}
       <div className="vault-grid">
         
-        {/* Registration Fee */}
-        <div className="vault-card">
-          <div className="vault-card-header">
-            <span className="vault-icon">📋</span>
-            <span className="vault-label">REGISTRATION</span>
-          </div>
-          <div className="vault-amount" style={{ color: '#209cee' }}>
-            {formatMXN(tournament?.registration_fee)}
-          </div>
-          <div className="vault-desc">Inscripción del equipo</div>
-        </div>
-
-        {/* Referee Fees */}
-        <div className="vault-card">
-          <div className="vault-card-header">
-            <span className="vault-icon">🏁</span>
-            <span className="vault-label">REFEREE POOL</span>
-          </div>
-          <div className="vault-amount" style={{ color: '#e76e55' }}>
-            {formatMXN(tournament?.referee_fee_total)}
-          </div>
-          <div className="vault-desc">Bolsa de arbitrajes</div>
-        </div>
-
         {/* Collected */}
         <div className="vault-card">
           <div className="vault-card-header">
