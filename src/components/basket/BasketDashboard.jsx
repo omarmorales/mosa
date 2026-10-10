@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchTournaments } from '../../lib/basketApi.js';
+import TournamentNavigator from './TournamentNavigator.jsx';
 import GymScoreboard from './GymScoreboard.jsx';
 import TournamentFinancials from './TournamentFinancials.jsx';
 import PlayerRoster from './PlayerRoster.jsx';
@@ -62,24 +63,12 @@ export default function BasketDashboard() {
         </button>
       </div>
 
-      {/* Multiple Tournaments Selector (World Selection) */}
-      {tournaments.length > 1 && (
-        <div className="tournament-selector-bar">
-          <span className="selector-title">WORLD SELECT:</span>
-          <div className="selector-buttons">
-            {tournaments.map((t, idx) => (
-              <button
-                key={t.tournament?.id || idx}
-                type="button"
-                className={`nes-btn is-small ${selectedIndex === idx ? 'is-warning' : 'is-dark'}`}
-                onClick={() => setSelectedIndex(idx)}
-              >
-                WORLD {idx + 1}: {t.tournament?.name || 'Tournament'}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Hybrid World Navigator (Stepper + Dropdown) */}
+      <TournamentNavigator 
+        tournaments={tournaments}
+        selectedIndex={selectedIndex}
+        onSelectIndex={setSelectedIndex}
+      />
 
       {/* Loading State */}
       {loading && (
@@ -185,28 +174,6 @@ export default function BasketDashboard() {
           border: 1px solid #3b82f6;
           padding: 4px 8px;
           border-radius: 4px;
-        }
-
-        .tournament-selector-bar {
-          background-color: #1a1c23;
-          border: 2px dashed #444;
-          padding: 12px;
-          border-radius: 6px;
-          margin-bottom: 25px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .selector-title {
-          font-size: 0.65rem;
-          color: #fbed64;
-        }
-
-        .selector-buttons {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
         }
       `}</style>
     </div>

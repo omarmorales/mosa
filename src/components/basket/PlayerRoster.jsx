@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { formatMXN } from '../../lib/basketApi.js';
+import PixelJersey from './PixelJersey.jsx';
 
 export default function PlayerRoster({ activePlayers = [], inactivePlayers = [] }) {
   const [filter, setFilter] = useState('all'); // 'all', 'paid', 'pending', 'inactive'
@@ -72,6 +73,9 @@ export default function PlayerRoster({ activePlayers = [], inactivePlayers = [] 
             const percent = Math.min(100, Math.round((paid / quota) * 100));
             const isExpanded = expandedPlayer === player.player_id;
             const payments = player.payments || [];
+            
+            // Strictly check jersey_number (supporting number 0, null, or string)
+            const hasJersey = player.jersey_number !== null && player.jersey_number !== undefined && String(player.jersey_number).trim() !== '';
 
             return (
               <div 
@@ -81,9 +85,12 @@ export default function PlayerRoster({ activePlayers = [], inactivePlayers = [] 
                 {/* Header with Avatar & Status */}
                 <div className="player-card-header">
                   <div className="player-identity">
-                    <div className="player-jersey">
-                      #{player.jersey_number || player.player_id || 'P1'}
-                    </div>
+                    <PixelJersey 
+                      number={hasJersey ? player.jersey_number : '?'} 
+                      size={38} 
+                      jerseyColor="#121418"
+                      numberColor="#ffffff"
+                    />
                     <div>
                       <h4 className="player-name">{player.name}</h4>
                       <span className="player-subinfo">
@@ -235,16 +242,29 @@ export default function PlayerRoster({ activePlayers = [], inactivePlayers = [] 
         .player-jersey {
           width: 34px;
           height: 34px;
-          background-color: #209cee;
-          color: #fff;
           border-radius: 4px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 0.7rem;
+          font-size: 0.65rem;
           font-weight: bold;
           border: 2px solid #000;
           box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+          flex-shrink: 0;
+          user-select: none;
+        }
+
+        .player-jersey.has-jersey {
+          background-color: #209cee;
+          color: #fff;
+        }
+
+        .player-jersey.no-jersey {
+          background-color: #212529;
+          color: #fbed64;
+          border: 2px dashed #4e5566;
+          box-shadow: 1px 1px 0px rgba(0,0,0,0.4);
+          font-size: 0.85rem;
         }
 
         .player-name {
