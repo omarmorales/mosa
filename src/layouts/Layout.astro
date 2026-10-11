@@ -1,5 +1,5 @@
 ---
-const { title } = Astro.props;
+const { title, showHeader = true } = Astro.props;
 import 'nes.css/css/nes.min.css';
 ---
 <!DOCTYPE html>
@@ -168,10 +168,12 @@ import 'nes.css/css/nes.min.css';
     </div>
 
     <div class="container">
-      <header>
-        <h1><i class="nes-icon is-large star"></i> Developer Player 1 <i class="nes-icon is-large star"></i></h1>
-        <p>Omar Morales - Full Stack Engineer</p>
-      </header>
+      {showHeader && (
+        <header>
+          <h1><i class="nes-icon is-large star"></i> Developer Player 1 <i class="nes-icon is-large star"></i></h1>
+          <p>Omar Morales - Full Stack Engineer</p>
+        </header>
+      )}
       <slot />
     </div>
 
