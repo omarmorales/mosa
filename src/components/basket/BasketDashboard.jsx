@@ -10,12 +10,10 @@ export default function BasketDashboard() {
   const [tournaments, setTournaments] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [apiError, setApiError] = useState(null);
 
-  const loadData = async (showRefreshing = false) => {
-    if (showRefreshing) setIsRefreshing(true);
-    else setLoading(true);
+  const loadData = async () => {
+    setLoading(true);
 
     try {
       const result = await fetchTournaments();
@@ -27,7 +25,6 @@ export default function BasketDashboard() {
       setTournaments([]);
     } finally {
       setLoading(false);
-      setIsRefreshing(false);
     }
   };
 
@@ -39,30 +36,6 @@ export default function BasketDashboard() {
 
   return (
     <div className="basket-dashboard-root">
-      {/* Top Controls & Status Bar */}
-      <div className="dashboard-control-bar">
-        <div className="status-badge-container">
-          <span className="status-pill is-live">
-            ● LIVE LEAGUE SYNC
-          </span>
-          {activeTournament?.tournament?.playoff_seed && (
-            <span className="seed-badge">
-              SEED #{activeTournament.tournament.playoff_seed}
-            </span>
-          )}
-        </div>
-
-        <button 
-          type="button" 
-          className={`nes-btn is-small ${isRefreshing ? 'is-disabled' : 'is-primary'}`}
-          onClick={() => loadData(true)}
-          disabled={isRefreshing}
-          style={{ fontSize: '0.6rem' }}
-        >
-          {isRefreshing ? 'SYNCING...' : '🔄 REFRESH'}
-        </button>
-      </div>
-
       {/* Hybrid World Navigator (Stepper + Dropdown) */}
       <TournamentNavigator 
         tournaments={tournaments}
@@ -130,50 +103,6 @@ export default function BasketDashboard() {
           width: 100%;
           max-width: 920px;
           margin: 0 auto;
-        }
-
-        .dashboard-control-bar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-
-        .status-badge-container {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          flex-wrap: wrap;
-        }
-
-        .status-pill {
-          font-size: 0.55rem;
-          padding: 4px 8px;
-          border-radius: 4px;
-          letter-spacing: 1px;
-        }
-
-        .status-pill.is-live {
-          background-color: #224b1d;
-          color: #92cc41;
-          border: 1px solid #92cc41;
-        }
-
-        .status-pill.is-demo {
-          background-color: #4b361d;
-          color: #fbed64;
-          border: 1px solid #fbed64;
-        }
-
-        .seed-badge {
-          font-size: 0.55rem;
-          background-color: #1e3a8a;
-          color: #60a5fa;
-          border: 1px solid #3b82f6;
-          padding: 4px 8px;
-          border-radius: 4px;
         }
       `}</style>
     </div>

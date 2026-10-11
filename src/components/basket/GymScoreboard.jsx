@@ -29,6 +29,11 @@ export default function GymScoreboard({ tournamentData }) {
 
           <div className="team-badge">
             TEAM: <span className="team-highlight">{tournament?.team_name?.toUpperCase() || 'TOROS'}</span>
+            {tournament?.playoff_seed && (
+              <span style={{ marginLeft: '8px', color: '#60a5fa' }}>
+                (SEED #{tournament.playoff_seed})
+              </span>
+            )}
           </div>
         </div>
 
