@@ -110,9 +110,21 @@ export default function PlayerRoster({ activePlayers = [], inactivePlayers = [] 
 
                 {/* HP / Payment Progress Bar */}
                 <div className="player-meter-section">
-                  <div className="meter-labels">
-                    <span>PAID: {formatMXN(paid)}</span>
-                    <span style={{ color: player.is_paid_off ? '#92cc41' : '#fbed64' }}>{percent}%</span>
+                  {/* Highlighted Total Paid Stat Box */}
+                  <div className="player-paid-highlight-box">
+                    <div className="paid-main-col">
+                      <span className="paid-title-label">TOTAL PAID</span>
+                      <span className="paid-big-amount">
+                        {formatMXN(paid)}
+                      </span>
+                    </div>
+
+                    <div className="paid-secondary-col">
+                      <span className="quota-tag">OF {formatMXN(quota)}</span>
+                      <span className="paid-percent-badge" style={{ color: player.is_paid_off ? '#4ade80' : '#fbed64' }}>
+                        {percent}%
+                      </span>
+                    </div>
                   </div>
 
                   <div className="retro-custom-progress">
@@ -309,18 +321,58 @@ export default function PlayerRoster({ activePlayers = [], inactivePlayers = [] 
           border-radius: 3px;
         }
 
-        /* Retro Progress Bar */
+        /* Retro Progress Bar & Highlighted Paid Box */
         .player-meter-section {
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 8px;
         }
 
-        .meter-labels {
+        .player-paid-highlight-box {
           display: flex;
           justify-content: space-between;
-          font-size: 0.55rem;
-          color: #8a909d;
+          align-items: center;
+          background-color: #0c0e12;
+          border: 1px solid #282d38;
+          border-radius: 4px;
+          padding: 8px 10px;
+        }
+
+        .paid-main-col {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+
+        .paid-title-label {
+          font-size: 0.5rem;
+          color: #8892b0;
+          letter-spacing: 1px;
+        }
+
+        .paid-big-amount {
+          font-size: 1.05rem;
+          font-weight: bold;
+          color: #4ade80;
+          text-shadow: 0 0 10px rgba(74, 222, 128, 0.45);
+          letter-spacing: 0.5px;
+        }
+
+        .paid-secondary-col {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 3px;
+        }
+
+        .quota-tag {
+          font-size: 0.5rem;
+          color: #717682;
+        }
+
+        .paid-percent-badge {
+          font-size: 0.75rem;
+          font-weight: bold;
         }
 
         .retro-custom-progress {
