@@ -3,16 +3,13 @@
 <section style="margin-bottom: 40px; margin-top: 20px;">
   <div class="dialogue-container" style="display: flex; gap: 15px; align-items: flex-end;">
     
-    <!-- Character Sprite -->
+    <!-- Character Sprite with 4-Frame Idle Animation -->
     <div class="avatar-container" style="text-align: center; flex-shrink: 0;">
-      <img 
-        src="/profile.png" 
-        alt="Player 1 Avatar" 
-        width="150" 
-        height="150" 
-        fetchpriority="high"
-        style="width: 150px; height: 150px; image-rendering: pixelated;" 
-      />
+      <div 
+        class="pixel-avatar-idle" 
+        role="img" 
+        aria-label="Player 1 Avatar (Omar)"
+      ></div>
     </div>
 
     <!-- Speech Balloon (Dialogue Box) -->
@@ -105,14 +102,45 @@
 </script>
 
 <style>
+  .pixel-avatar-idle {
+    --avatar-size: 150px;
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    background-image: url('/profile-idle.png');
+    background-size: calc(var(--avatar-size) * 4) var(--avatar-size);
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    animation: playerIdle 1.4s steps(4) infinite;
+    display: inline-block;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+    transition: filter 0.2s, transform 0.15s ease;
+    user-select: none;
+  }
+
+  .pixel-avatar-idle:hover {
+    filter: drop-shadow(0 0 10px rgba(32, 156, 238, 0.7));
+    transform: translateY(-2px);
+    cursor: pointer;
+  }
+
+  @keyframes playerIdle {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: calc(var(--avatar-size) * -4) 0;
+    }
+  }
+
   /* Ensure the dialogue box stays side-by-side with the image on tiny screens */
   @media (max-width: 600px) {
     .dialogue-container {
       gap: 10px !important;
     }
-    .avatar-container img {
-      width: 130px !important;
-      height: 130px !important;
+    .pixel-avatar-idle {
+      --avatar-size: 130px;
     }
     .dialogue-balloon {
       padding: 1rem !important;
