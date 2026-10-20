@@ -3,12 +3,14 @@
 <section style="margin-bottom: 40px; margin-top: 20px;">
   <div class="dialogue-container" style="display: flex; gap: 15px; align-items: flex-end;">
     
-    <!-- Character Sprite with 4-Frame Idle Animation -->
+    <!-- Character Sprite with Breathing and Basketball Spin Animations -->
     <div class="avatar-container" style="text-align: center; flex-shrink: 0;">
       <div 
-        class="pixel-avatar-idle" 
+        id="hero-pixel-avatar"
+        class="pixel-avatar anim-basket" 
         role="img" 
         aria-label="Player 1 Avatar (Omar)"
+        title="Click Omar to toggle basketball spin / breathing!"
       ></div>
     </div>
 
@@ -93,45 +95,98 @@
       startTypingLine(currentLineIdx);
     };
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initTypewriter);
-    } else {
+    const initAvatar = () => {
+      const avatar = document.getElementById('hero-pixel-avatar');
+      if (!avatar) return;
+
+      let spinTimer = null;
+
+      const setAvatarState = (state) => {
+        avatar.classList.remove('anim-idle', 'anim-basket');
+        avatar.classList.add(`anim-${state}`);
+      };
+
+      const playBasketIntro = () => {
+        if (spinTimer) clearTimeout(spinTimer);
+
+        // Spin the basketball on initial load
+        setAvatarState('basket');
+
+        // Then settle into breath (idle)
+        spinTimer = setTimeout(() => {
+          setAvatarState('idle');
+        }, 2400);
+      };
+
+      // Play basketball spin on load, then breathe
+      playBasketIntro();
+
+      // Clicking the avatar toggles between spinning ball and idle breath
+      avatar.addEventListener('click', () => {
+        if (spinTimer) clearTimeout(spinTimer);
+        if (avatar.classList.contains('anim-idle')) {
+          setAvatarState('basket');
+        } else {
+          setAvatarState('idle');
+        }
+      });
+    };
+
+    const init = () => {
       initTypewriter();
+      initAvatar();
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
     }
   })();
 </script>
 
 <style>
-  .pixel-avatar-idle {
+  .pixel-avatar {
     --avatar-size: 150px;
     width: var(--avatar-size);
     height: var(--avatar-size);
-    background-image: url('/profile-idle.png');
-    background-size: calc(var(--avatar-size) * 4) var(--avatar-size);
-    background-repeat: no-repeat;
-    background-position: 0 0;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-    animation: playerIdle 1.4s steps(4) infinite;
     display: inline-block;
     filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
     transition: filter 0.2s, transform 0.15s ease;
     user-select: none;
+    cursor: pointer;
+    background-repeat: no-repeat;
   }
 
-  .pixel-avatar-idle:hover {
+  .pixel-avatar:hover {
     filter: drop-shadow(0 0 10px rgba(32, 156, 238, 0.7));
     transform: translateY(-2px);
-    cursor: pointer;
+  }
+
+  /* Idle Breath State: 4 Frames */
+  .pixel-avatar.anim-idle {
+    background-image: url('/profile-idle.png');
+    background-size: calc(var(--avatar-size) * 4) var(--avatar-size);
+    animation: playerIdle 1.4s steps(4) infinite;
+  }
+
+  /* Basketball Spin State: 8 Frames */
+  .pixel-avatar.anim-basket {
+    background-image: url('/profile-basket.png');
+    background-size: calc(var(--avatar-size) * 8) var(--avatar-size);
+    animation: playerBasket 0.8s steps(8) infinite;
   }
 
   @keyframes playerIdle {
-    from {
-      background-position: 0 0;
-    }
-    to {
-      background-position: calc(var(--avatar-size) * -4) 0;
-    }
+    from { background-position: 0 0; }
+    to { background-position: calc(var(--avatar-size) * -4) 0; }
+  }
+
+  @keyframes playerBasket {
+    from { background-position: 0 0; }
+    to { background-position: calc(var(--avatar-size) * -8) 0; }
   }
 
   /* Ensure the dialogue box stays side-by-side with the image on tiny screens */
@@ -139,7 +194,7 @@
     .dialogue-container {
       gap: 10px !important;
     }
-    .pixel-avatar-idle {
+    .pixel-avatar {
       --avatar-size: 130px;
     }
     .dialogue-balloon {
