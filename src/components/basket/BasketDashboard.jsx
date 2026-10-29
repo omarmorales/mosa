@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { fetchTournaments } from '../../lib/basketApi.js';
+import React, { useState, useEffect, useMemo } from 'react';
+import { fetchTournaments, findMostRecentTournamentIndex } from '../../lib/basketApi.js';
 import TournamentNavigator from './TournamentNavigator.jsx';
 import GymScoreboard from './GymScoreboard.jsx';
 import TournamentFinancials from './TournamentFinancials.jsx';
@@ -17,8 +17,13 @@ export default function BasketDashboard() {
 
     try {
       const result = await fetchTournaments();
-      setTournaments(result.data || []);
+      const data = result.data || [];
+      setTournaments(data);
       setApiError(result.error || null);
+      if (data.length > 0) {
+        const recentIdx = findMostRecentTournamentIndex(data);
+        setSelectedIndex(recentIdx);
+      }
     } catch (err) {
       console.error(err);
       setApiError(err.message);
@@ -32,6 +37,10 @@ export default function BasketDashboard() {
     loadData();
   }, []);
 
+  const mostRecentIndex = useMemo(() => {
+    return findMostRecentTournamentIndex(tournaments);
+  }, [tournaments]);
+
   const activeTournament = tournaments[selectedIndex] || null;
 
   return (
@@ -41,6 +50,7 @@ export default function BasketDashboard() {
         tournaments={tournaments}
         selectedIndex={selectedIndex}
         onSelectIndex={setSelectedIndex}
+        mostRecentIndex={mostRecentIndex}
       />
 
       {/* Loading State */}

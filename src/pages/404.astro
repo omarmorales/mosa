@@ -1,0 +1,410 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="404 - Level Not Found | Omar Morales" showHeader={false}>
+  <main class="page-404-container">
+    
+    <!-- Top Retro Banner -->
+    <div class="retro-glitch-header">
+      <div class="glitch-banner">
+        <span class="skull-icon">💀</span>
+        <h1 class="glitch-title" data-text="GAME OVER - 404">GAME OVER - 404</h1>
+        <span class="skull-icon">💀</span>
+      </div>
+      <p class="glitch-subtitle">STAGE 404: LEVEL NOT FOUND IN CARTRIDGE</p>
+    </div>
+
+    <!-- Avatar Dialogue Section -->
+    <div class="dialogue-container">
+      
+      <!-- Character Sprite (Idle breathing with basketball spin toggle on click) -->
+      <div class="avatar-box">
+        <div 
+          id="avatar-404"
+          class="pixel-avatar anim-idle" 
+          role="img" 
+          aria-label="Omar Morales Pixel Avatar"
+          title="Click me to spin the basketball!"
+        ></div>
+        <span class="avatar-caption">CLICK TO RESPAWN</span>
+      </div>
+
+      <!-- Dialogue Balloon -->
+      <div class="nes-balloon from-left is-dark dialogue-balloon">
+        <p class="dialogue-heading">⚠️ WOAH, YOU TOOK A WRONG WARP PIPE!</p>
+        <p class="dialogue-body">
+          You wandered into an uncharted zone or this level was deleted from the game cartridge.
+        </p>
+        <p class="dialogue-footer">
+          Don't lose your coins! Choose a warp point below to get back to safety.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- HUD Diagnostics Console -->
+    <div class="nes-container is-dark with-title hud-console">
+      <p class="title">CARTRIDGE DIAGNOSTICS</p>
+      
+      <div class="hud-stats-grid">
+        <div class="hud-stat-item">
+          <span class="hud-label">STATUS</span>
+          <span class="hud-value status-error">MISSING_ROUTE</span>
+        </div>
+
+        <div class="hud-stat-item">
+          <span class="hud-label">LIVES</span>
+          <span class="hud-value"><i class="nes-icon is-small heart"></i><i class="nes-icon is-small heart"></i><i class="nes-icon is-small is-half heart"></i> 02/03</span>
+        </div>
+
+        <div class="hud-stat-item">
+          <span class="hud-label">COINS</span>
+          <span class="hud-value"><i class="nes-icon is-small coin"></i> 404 PTS</span>
+        </div>
+
+        <div class="hud-stat-item">
+          <span class="hud-label">CHECKPOINT</span>
+          <span class="hud-value status-safe">WORLD 1-1</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Warp Gates -->
+    <div class="warp-gates-section">
+      <h2 class="warp-gates-title">SELECT RESPAWN DESTINATION:</h2>
+      
+      <div class="warp-buttons-grid">
+        <a href="/" class="nes-btn is-primary warp-btn">
+          <span>🏠 HOME HUB</span>
+        </a>
+
+        <a href="/basket" class="nes-btn is-warning warp-btn">
+          <span>🏀 BASKET ARENA</span>
+        </a>
+
+        <a href="/workouts" class="nes-btn is-success warp-btn">
+          <span>💪 WORKOUTS</span>
+        </a>
+
+        <a href="/finances" class="nes-btn is-error warp-btn">
+          <span>💰 FINANCES</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="press-start-prompt">
+      <p>◄ PRESS ANY WARP BUTTON TO CONTINUE ►</p>
+    </div>
+
+  </main>
+</Layout>
+
+<script is:inline>
+  (() => {
+    const initAvatar = () => {
+      const avatar = document.getElementById('avatar-404');
+      if (!avatar) return;
+
+      let isBasket = false;
+
+      const toggleAnim = () => {
+        isBasket = !isBasket;
+        if (isBasket) {
+          avatar.classList.remove('anim-idle');
+          avatar.classList.add('anim-basket');
+        } else {
+          avatar.classList.remove('anim-basket');
+          avatar.classList.add('anim-idle');
+        }
+      };
+
+      avatar.addEventListener('click', toggleAnim);
+      avatar.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleAnim();
+        }
+      });
+      avatar.setAttribute('tabindex', '0');
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAvatar);
+    } else {
+      initAvatar();
+    }
+  })();
+</script>
+
+<style>
+  .page-404-container {
+    max-width: 820px;
+    margin: 20px auto 50px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  /* Glitch Header */
+  .retro-glitch-header {
+    text-align: center;
+    border-bottom: 4px dashed #3a4150;
+    padding-bottom: 20px;
+  }
+
+  .glitch-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .skull-icon {
+    font-size: 1.8rem;
+    animation: bobble 1.2s step-end infinite alternate;
+  }
+
+  @keyframes bobble {
+    50% { transform: translateY(-4px) rotate(5deg); }
+  }
+
+  .glitch-title {
+    color: #e76e55;
+    font-size: 1.8rem;
+    margin: 0;
+    text-shadow: 2px 2px #92cc41, -2px -2px #209cee;
+    letter-spacing: 2px;
+  }
+
+  .glitch-subtitle {
+    color: #fbed64;
+    font-size: 0.75rem;
+    margin-top: 12px;
+    letter-spacing: 1px;
+  }
+
+  /* Dialogue Container */
+  .dialogue-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+  }
+
+  .avatar-box {
+    text-align: center;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .avatar-caption {
+    font-size: 0.45rem;
+    color: #8892b0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Avatar Spritesheet styles */
+  .pixel-avatar {
+    --avatar-size: 150px;
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    display: inline-block;
+    filter: drop-shadow(0 6px 12px rgba(231, 110, 85, 0.4));
+    transition: filter 0.2s, transform 0.15s ease;
+    user-select: none;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    outline: none;
+  }
+
+  .pixel-avatar:hover, .pixel-avatar:focus-visible {
+    filter: drop-shadow(0 0 14px rgba(231, 110, 85, 0.8));
+    transform: translateY(-3px) scale(1.02);
+  }
+
+  /* Idle Breathing (4 Frames) */
+  .pixel-avatar.anim-idle {
+    background-image: url('/profile-idle.png');
+    background-size: calc(var(--avatar-size) * 4) var(--avatar-size);
+    animation: playerIdle 1.4s steps(4) infinite;
+  }
+
+  /* Basketball Spin (8 Frames) */
+  .pixel-avatar.anim-basket {
+    background-image: url('/profile-basket.png');
+    background-size: calc(var(--avatar-size) * 8) var(--avatar-size);
+    animation: playerBasket 0.8s steps(8) infinite;
+  }
+
+  @keyframes playerIdle {
+    from { background-position: 0 0; }
+    to { background-position: calc(var(--avatar-size) * -4) 0; }
+  }
+
+  @keyframes playerBasket {
+    from { background-position: 0 0; }
+    to { background-position: calc(var(--avatar-size) * -8) 0; }
+  }
+
+  /* Dialogue Balloon */
+  .dialogue-balloon {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dialogue-heading {
+    color: #e76e55;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+  }
+
+  .dialogue-body {
+    font-size: 0.7rem;
+    line-height: 1.6;
+    color: #f4f4f4;
+    margin-bottom: 10px;
+  }
+
+  .dialogue-footer {
+    font-size: 0.65rem;
+    color: #92cc41;
+    margin: 0;
+  }
+
+  /* HUD Diagnostics */
+  .hud-console {
+    background-color: #0c0d10 !important;
+    border: 3px solid #2e3440 !important;
+  }
+
+  .hud-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px;
+    padding: 5px 0;
+  }
+
+  .hud-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #14171f;
+    padding: 10px 12px;
+    border: 2px solid #252a36;
+    border-radius: 4px;
+  }
+
+  .hud-label {
+    font-size: 0.5rem;
+    color: #7d8597;
+    letter-spacing: 1px;
+  }
+
+  .hud-value {
+    font-size: 0.7rem;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-error {
+    color: #e76e55;
+    text-shadow: 0 0 6px rgba(231, 110, 85, 0.6);
+  }
+
+  .status-safe {
+    color: #92cc41;
+    text-shadow: 0 0 6px rgba(146, 204, 65, 0.6);
+  }
+
+  /* Warp Gates Section */
+  .warp-gates-section {
+    text-align: center;
+  }
+
+  .warp-gates-title {
+    font-size: 0.8rem;
+    color: #fbed64;
+    margin-bottom: 18px;
+    letter-spacing: 1px;
+  }
+
+  .warp-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  .warp-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    font-size: 0.7rem !important;
+    text-decoration: none !important;
+  }
+
+  /* Press start prompt */
+  .press-start-prompt {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .press-start-prompt p {
+    font-size: 0.6rem;
+    color: #6c757d;
+    letter-spacing: 1px;
+    animation: promptBlink 1.4s step-end infinite;
+  }
+
+  @keyframes promptBlink {
+    50% { opacity: 0.3; }
+  }
+
+  /* Responsive Mobile Tweaks */
+  @media (max-width: 640px) {
+    .glitch-title {
+      font-size: 1.2rem;
+    }
+    .skull-icon {
+      font-size: 1.2rem;
+    }
+    .dialogue-container {
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    .dialogue-balloon {
+      width: 100%;
+    }
+    .dialogue-balloon::before, .dialogue-balloon::after {
+      /* Flip balloon arrow to top when stacked vertically */
+      top: -16px !important;
+      left: 30px !important;
+      border-right-color: transparent !important;
+      border-bottom-color: #212529 !important;
+    }
+    .dialogue-heading {
+      font-size: 0.7rem;
+    }
+    .dialogue-body {
+      font-size: 0.6rem;
+    }
+    .dialogue-footer {
+      font-size: 0.55rem;
+    }
+    .pixel-avatar {
+      --avatar-size: 120px;
+    }
+    .warp-buttons-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

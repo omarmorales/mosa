@@ -42,8 +42,11 @@ export default function GymScoreboard({ tournamentData }) {
           
           {/* HOME / WINS PANEL */}
           <div className="score-panel home-panel">
-            <div className="panel-label">WINS</div>
-            <div className="led-digit led-win">{winsStr}</div>
+            <div className="panel-label">HOME / WINS</div>
+            <div className="digit-wrap">
+              <span className="led-ghost" aria-hidden="true">88</span>
+              <span className="led-digit led-win">{winsStr}</span>
+            </div>
             <div className="panel-sublabel">GAMES WON</div>
           </div>
 
@@ -51,21 +54,31 @@ export default function GymScoreboard({ tournamentData }) {
           <div className="score-panel center-panel">
             <div className="period-box">
               <div className="panel-label">GAMES PLAYED</div>
-              <div className="led-digit led-period">{String(matchesPlayed).padStart(2, '0')}</div>
+              <div className="digit-wrap digit-wrap-sm">
+                <span className="led-ghost" aria-hidden="true">88</span>
+                <span className="led-digit led-period">{String(matchesPlayed).padStart(2, '0')}</span>
+              </div>
             </div>
 
+            <div className="center-divider"></div>
+
             <div className="shot-clock-box">
-              <div className="shot-clock-label">TEAM QUOTA %</div>
-              <div className="led-digit led-shotclock">
-                {financials?.percentage_collected?.toFixed(1) || '0.0'}%
+              <div className="shot-clock-label">TEAM QUOTA</div>
+              <div className="digit-wrap digit-wrap-sm">
+                <span className="led-digit led-shotclock">
+                  {financials?.percentage_collected?.toFixed(1) || '0.0'}%
+                </span>
               </div>
             </div>
           </div>
 
           {/* GUEST / LOSSES PANEL */}
           <div className="score-panel guest-panel">
-            <div className="panel-label">LOSSES</div>
-            <div className="led-digit led-loss">{lossesStr}</div>
+            <div className="panel-label">AWAY / LOSSES</div>
+            <div className="digit-wrap">
+              <span className="led-ghost" aria-hidden="true">88</span>
+              <span className="led-digit led-loss">{lossesStr}</span>
+            </div>
             <div className="panel-sublabel">GAMES LOST</div>
           </div>
 
@@ -74,17 +87,17 @@ export default function GymScoreboard({ tournamentData }) {
         {/* Sub-Panel: Financial Summary LED Grid */}
         <div className="scoreboard-financial-subpanel">
           <div className="subpanel-stat">
-            <span className="sub-label">TOTAL BUDGET</span>
+            <span className="sub-label">BUDGET</span>
             <span className="sub-digit led-amber">{formatMXN(financials?.total_cost)}</span>
           </div>
 
           <div className="subpanel-stat">
-            <span className="sub-label">COLLECTED COINS</span>
+            <span className="sub-label">COLLECTED</span>
             <span className="sub-digit led-green">{formatMXN(financials?.total_collected)}</span>
           </div>
 
           <div className="subpanel-stat">
-            <span className="sub-label">PENDING BALANCE</span>
+            <span className="sub-label">PENDING</span>
             <span className="sub-digit led-red">{formatMXN(financials?.total_pending)}</span>
           </div>
         </div>
@@ -196,14 +209,11 @@ export default function GymScoreboard({ tournamentData }) {
         .scoreboard-main-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 12px;
+          grid-template-areas:
+            "home guest"
+            "center center";
+          gap: 10px;
           margin-bottom: 16px;
-        }
-
-        @media (min-width: 600px) {
-          .scoreboard-main-grid {
-            grid-template-columns: 1.2fr 1.6fr 1.2fr;
-          }
         }
 
         .score-panel {
@@ -218,18 +228,31 @@ export default function GymScoreboard({ tournamentData }) {
           justify-content: center;
         }
 
+        .home-panel {
+          grid-area: home;
+        }
+
+        .guest-panel {
+          grid-area: guest;
+        }
+
         .center-panel {
-          grid-column: span 2;
+          grid-area: center;
           display: flex;
           flex-direction: row;
           justify-content: space-around;
           align-items: center;
           gap: 10px;
+          padding: 8px 12px;
+          background-color: #050608;
+          border: 2px solid #20242c;
+          border-radius: 6px;
         }
 
-        @media (min-width: 600px) {
-          .center-panel {
-            grid-column: span 1;
+        @media (min-width: 680px) {
+          .scoreboard-main-grid {
+            grid-template-columns: 1.2fr 1.6fr 1.2fr;
+            grid-template-areas: "home center guest";
           }
         }
 
@@ -246,15 +269,51 @@ export default function GymScoreboard({ tournamentData }) {
           margin-top: 6px;
         }
 
-        .led-digit {
+        .center-divider {
+          width: 2px;
+          height: 36px;
+          background: #2a2e39;
+          opacity: 0.6;
+        }
+
+        .digit-wrap {
+          position: relative;
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          background-color: #020304;
+          padding: 6px 10px;
+          border-radius: 4px;
+          border: 1px solid #1c2028;
+          box-shadow: inset 0 2px 6px rgba(0,0,0,0.9);
+        }
+
+        .digit-wrap-sm {
+          padding: 4px 8px;
+        }
+
+        .led-ghost {
+          position: absolute;
+          color: rgba(255, 255, 255, 0.05);
           font-size: 2.2rem;
           line-height: 1;
           letter-spacing: 2px;
-          padding: 4px 8px;
-          border-radius: 4px;
-          background-color: #000;
-          display: inline-block;
-          border: 1px solid #1a1a1a;
+          user-select: none;
+          pointer-events: none;
+        }
+
+        .digit-wrap-sm .led-ghost {
+          font-size: 1.4rem;
+        }
+
+        .led-digit {
+          position: relative;
+          font-size: 2.2rem;
+          line-height: 1;
+          letter-spacing: 2px;
+          background: transparent;
+          border: none;
+          padding: 0;
         }
 
         .led-win {
@@ -270,7 +329,7 @@ export default function GymScoreboard({ tournamentData }) {
         .led-period {
           color: #38bdf8;
           text-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
-          font-size: 1.5rem;
+          font-size: 1.4rem;
         }
 
         .shot-clock-label {
@@ -288,11 +347,11 @@ export default function GymScoreboard({ tournamentData }) {
         /* Financial subpanel */
         .scoreboard-financial-subpanel {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          gap: 8px;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 6px;
           background-color: #050608;
           border: 1px solid #20242c;
-          padding: 10px;
+          padding: 8px 6px;
           border-radius: 6px;
           margin-bottom: 12px;
         }
@@ -303,21 +362,61 @@ export default function GymScoreboard({ tournamentData }) {
           align-items: center;
           gap: 4px;
           text-align: center;
+          min-width: 0;
         }
 
         .sub-label {
-          font-size: 0.48rem;
+          font-size: 0.45rem;
           color: #717682;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .sub-digit {
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           font-weight: bold;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .led-amber { color: #fbed64; text-shadow: 0 0 6px rgba(251, 237, 100, 0.4); }
         .led-green { color: #92cc41; text-shadow: 0 0 6px rgba(146, 204, 65, 0.4); }
         .led-red { color: #e76e55; text-shadow: 0 0 6px rgba(231, 110, 85, 0.4); }
+
+        @media (max-width: 600px) {
+          .scoreboard-bezel {
+            padding: 10px;
+          }
+          .scoreboard-title {
+            font-size: 0.75rem;
+          }
+          .panel-label {
+            font-size: 0.45rem;
+          }
+          .panel-sublabel {
+            font-size: 0.35rem;
+          }
+          .digit-wrap {
+            padding: 4px 6px;
+          }
+          .led-digit, .led-ghost {
+            font-size: 1.7rem;
+          }
+          .led-period, .digit-wrap-sm .led-ghost {
+            font-size: 1.2rem;
+          }
+          .led-shotclock {
+            font-size: 0.95rem;
+          }
+          .sub-label {
+            font-size: 0.38rem;
+          }
+          .sub-digit {
+            font-size: 0.65rem;
+          }
+        }
 
         /* Ticker */
         .scoreboard-ticker {

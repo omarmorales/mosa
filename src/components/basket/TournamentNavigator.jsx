@@ -4,7 +4,12 @@ import React from 'react';
  * Option 4: Hybrid Stepper + Retro Dropdown Selector
  * Compact 1-line responsive navigation for switching tournaments
  */
-export default function TournamentNavigator({ tournaments = [], selectedIndex = 0, onSelectIndex }) {
+export default function TournamentNavigator({ 
+  tournaments = [], 
+  selectedIndex = 0, 
+  onSelectIndex,
+  mostRecentIndex = -1
+}) {
   if (!tournaments || tournaments.length <= 1) return null;
 
   const total = tournaments.length;
@@ -32,9 +37,16 @@ export default function TournamentNavigator({ tournaments = [], selectedIndex = 
       
       {/* Top Header Label */}
       <div className="navigator-header">
-        <span className="navigator-title">
-          🎮 WORLD SELECT ({selectedIndex + 1} / {total})
-        </span>
+        <div className="navigator-title-group">
+          <span className="navigator-title">
+            🎮 WORLD SELECT ({selectedIndex + 1} / {total})
+          </span>
+          {selectedIndex === mostRecentIndex && (
+            <span className="recent-badge">
+              🔥 RECENT UPDATES
+            </span>
+          )}
+        </div>
         {currentTournament?.record?.formatted && (
           <span className="navigator-record">
             RECORD: {currentTournament.record.formatted}
@@ -66,12 +78,14 @@ export default function TournamentNavigator({ tournaments = [], selectedIndex = 
             aria-label="Select Tournament"
           >
             {tournaments.map((t, idx) => {
+              const isRecent = idx === mostRecentIndex;
               const statusTag = t.tournament?.status === 'active' ? '● ACTIVE' : '🏁 ENDED';
               const name = t.tournament?.name || `Tournament #${t.tournament?.id || idx + 1}`;
               const record = t.record?.formatted ? `[${t.record.formatted}]` : '';
+              const recentTag = isRecent ? ' [🔥 RECENT]' : '';
               return (
                 <option key={t.tournament?.id || idx} value={idx}>
-                  W{idx + 1}: {name} {record} ({statusTag})
+                  W{idx + 1}: {name} {record}{recentTag} ({statusTag})
                 </option>
               );
             })}
@@ -110,6 +124,23 @@ export default function TournamentNavigator({ tournaments = [], selectedIndex = 
           margin-bottom: 10px;
           flex-wrap: wrap;
           gap: 6px;
+        }
+
+        .navigator-title-group {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .recent-badge {
+          background-color: #e76e55;
+          color: #ffffff;
+          font-size: 0.45rem;
+          padding: 2px 6px;
+          border-radius: 3px;
+          letter-spacing: 0.5px;
+          box-shadow: 0 0 6px rgba(231, 110, 85, 0.6);
         }
 
         .navigator-title {
